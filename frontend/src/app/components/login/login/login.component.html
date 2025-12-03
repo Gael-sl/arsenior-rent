@@ -1,0 +1,154 @@
+<div class="min-h-screen bg-gradient-to-br from-stone-50 to-stone-100 flex items-center justify-center py-16 px-4">
+  <div class="w-full max-w-md">
+    <!-- Card with Glassmorphism -->
+    <div class="bg-white/95 backdrop-blur-lg border border-stone-200/50 shadow-2xl rounded-2xl p-8">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-center mb-8">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+            <span class="text-white font-serif text-lg">A</span>
+          </div>
+          <span class="font-serif text-2xl text-stone-900">Arsenior Rent</span>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="text-center mb-8">
+        <h1 class="font-serif text-3xl text-stone-900 mb-2">Iniciar Sesión</h1>
+        <p class="text-stone-600">Bienvenido de vuelta</p>
+      </div>
+
+      <!-- Error Message -->
+      @if (error) {
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+          <p class="text-sm text-red-700">{{ error }}</p>
+        </div>
+      }
+
+      <!-- Form -->
+      <form (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <!-- Email Input with Icon -->
+        <div class="space-y-2">
+          <label for="email" class="block text-sm font-medium text-stone-700">Correo Electrónico</label>
+          <div class="relative">
+            <!-- Mail Icon SVG -->
+            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="m2 7 10 7 10-7"/>
+            </svg>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [(ngModel)]="credentials.email"
+              placeholder="tu@email.com"
+              required
+              [disabled]="loading"
+              class="w-full pl-11 pr-4 py-3 bg-white/50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all placeholder:text-stone-400"
+            />
+          </div>
+        </div>
+
+        <!-- Password Input with Icon and Toggle -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label for="password" class="block text-sm font-medium text-stone-700">Contraseña</label>
+            <a routerLink="/forgot-password" class="text-xs text-amber-600 hover:text-amber-700 hover:underline transition-colors">
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+          <div class="relative">
+            <!-- Lock Icon SVG -->
+            <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              name="password"
+              [(ngModel)]="credentials.password"
+              placeholder="Tu contraseña"
+              required
+              [disabled]="loading"
+              class="w-full pl-11 pr-11 py-3 bg-white/50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all placeholder:text-stone-400"
+            />
+            <!-- Toggle Password Visibility -->
+            <button
+              type="button"
+              (click)="togglePassword()"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+            >
+              @if (showPassword) {
+                <!-- Eye Off Icon -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                  <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                  <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                  <line x1="2" y1="2" x2="22" y2="22"/>
+                </svg>
+              } @else {
+                <!-- Eye Icon -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Demo Credentials Info -->
+        <div class="text-sm text-stone-600 bg-stone-50 p-4 rounded-lg border border-stone-200">
+          <p class="font-semibold mb-1">Demo Admin:</p>
+          <p class="text-xs">Email: admin@arseniorrent.com</p>
+          <p class="text-xs">Contraseña: Admin123</p>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="loading"
+          class="w-full bg-black hover:bg-stone-800 text-white py-3 px-6 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (loading) {
+            <span class="flex items-center justify-center">
+              <span class="loading mr-2"></span>
+              Iniciando...
+            </span>
+          } @else {
+            Iniciar Sesión
+          }
+        </button>
+      </form>
+
+      <!-- Mensaje de Bienvenida -->
+@if (welcomeMessage) {
+  <div class="mt-4 text-center text-green-600 font-semibold animate-pulse">
+    {{ welcomeMessage }}
+  </div>
+}
+
+      <!-- Register Link -->
+      <div class="mt-8 text-center">
+        <p class="text-sm text-stone-600">
+          ¿No tienes cuenta?
+          <a routerLink="/register" class="text-black font-semibold hover:underline ml-1">
+            Regístrate aquí
+          </a>
+        </p>
+      </div>
+
+      <!-- Terms -->
+      <div class="mt-6 text-center">
+        <p class="text-xs text-stone-500">
+          Al continuar, aceptas nuestros términos y condiciones
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

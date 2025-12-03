@@ -1,0 +1,49 @@
+/* Estilos para el mapa y markers personalizados */
+
+/* Asegurar que Leaflet se vea correctamente */
+:host ::ng-deep .leaflet-container {
+  font-family: inherit;
+  height: 100%;
+  width: 100%;
+}
+
+:host ::ng-deep .leaflet-tile-container img {
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* Leaflet popup styling */
+:host ::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 0;
+}
+
+:host ::ng-deep .leaflet-popup-content {
+  margin: 0;
+  font-family: inherit;
+  padding: 12px 16px;
+}
+
+:host ::ng-deep .leaflet-popup-tip {
+  background: white;
+}
+
+/* Map container */
+#map {
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 1;
+  background: #e5e7eb;
+  min-height: 600px;
+  height: 600px;
+}
+
+/* Glassmorphism effects */
+.bg-white\/80 {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}

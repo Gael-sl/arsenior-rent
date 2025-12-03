@@ -1,0 +1,266 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-gradient-to-br from-stone-50 to-stone-100">
+  
+  <!-- Header -->
+  <section class="bg-stone-900 text-white py-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 class="font-serif text-3xl md:text-4xl mb-2">Historial de Pagos</h1>
+          <p class="text-stone-400">Revisa todos tus pagos y transacciones</p>
+        </div>
+        <a routerLink="/my-reservations" 
+           class="mt-4 md:mt-0 inline-flex items-center text-sm text-stone-400 hover:text-white transition-colors">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Volver a Mis Reservas
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      @if (loading()) {
+        <div class="flex items-center justify-center py-20">
+          <app-loading-spinner [size]="300" message="Cargando historial..."></app-loading-spinner>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6">
+          <p class="text-sm text-red-700">{{ error() }}</p>
+          <button (click)="loadPayments()" class="mt-2 text-sm text-red-600 hover:underline">
+            Reintentar
+          </button>
+        </div>
+      }
+
+      @if (!loading() && stats()) {
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <!-- Total Pagado -->
+          <div class="bg-white/70 backdrop-blur-lg border border-stone-200/50 rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+            </div>
+            <p class="text-xs text-stone-500 mb-1">Total Pagado</p>
+            <p class="text-xl font-serif text-stone-900">{{ paymentsService.formatCurrency(stats()!.totalPaid) }}</p>
+          </div>
+
+          <!-- Pendiente -->
+          <div class="bg-white/70 backdrop-blur-lg border border-stone-200/50 rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+            </div>
+            <p class="text-xs text-stone-500 mb-1">Pendiente</p>
+            <p class="text-xl font-serif text-stone-900">{{ paymentsService.formatCurrency(stats()!.pendingAmount) }}</p>
+          </div>
+
+          <!-- Pagos Completados -->
+          <div class="bg-white/70 backdrop-blur-lg border border-stone-200/50 rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+              </div>
+            </div>
+            <p class="text-xs text-stone-500 mb-1">Completados</p>
+            <p class="text-xl font-serif text-stone-900">{{ stats()!.completedCount }}</p>
+          </div>
+
+          <!-- Pagos Pendientes -->
+          <div class="bg-white/70 backdrop-blur-lg border border-stone-200/50 rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+            </div>
+            <p class="text-xs text-stone-500 mb-1">Pendientes</p>
+            <p class="text-xl font-serif text-stone-900">{{ stats()!.pendingCount }}</p>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white/70 backdrop-blur-lg border border-stone-200/50 rounded-xl p-4 mb-6 shadow-sm">
+          <div class="flex flex-wrap gap-4">
+            <!-- Filtro por tipo -->
+            <div>
+              <label class="block text-xs text-stone-500 mb-2">Tipo de Pago</label>
+              <div class="flex gap-2">
+                <button (click)="setFilterType('all')"
+                        [class.bg-black]="filterType() === 'all'"
+                        [class.text-white]="filterType() === 'all'"
+                        class="px-3 py-1.5 text-xs rounded-lg border border-stone-200 hover:bg-stone-100 transition-colors">
+                  Todos
+                </button>
+                <button (click)="setFilterType('deposit')"
+                        [class.bg-blue-600]="filterType() === 'deposit'"
+                        [class.text-white]="filterType() === 'deposit'"
+                        class="px-3 py-1.5 text-xs rounded-lg border border-stone-200 hover:bg-stone-100 transition-colors">
+                  Deposito
+                </button>
+                <button (click)="setFilterType('final')"
+                        [class.bg-purple-600]="filterType() === 'final'"
+                        [class.text-white]="filterType() === 'final'"
+                        class="px-3 py-1.5 text-xs rounded-lg border border-stone-200 hover:bg-stone-100 transition-colors">
+                  Final
+                </button>
+                <button (click)="setFilterType('extra')"
+                        [class.bg-orange-600]="filterType() === 'extra'"
+                        [class.text-white]="filterType() === 'extra'"
+                        class="px-3 py-1.5 text-xs rounded-lg border border-stone-200 hover:bg-stone-100 transition-colors">
+                  Extra
+                </button>
+              </div>
+            </div>
+
+            <!-- Filtro por estado -->
+            <div>
+              <label class="block text-xs text-stone-500 mb-2">Estado</label>
+              <div class="flex gap-2">
+                <button (click)="setFilterStatus('all')"
+                        [class.bg-black]="filterStatus() === 'all'"
+                        [class.text-white]="filterStatus() === 'all'"
+                        class="px-3 py-1.5 text-xs rounded-lg border border-stone-200 hover:bg-stone-100 transition-colors">
+                  Todos
+                </button>
+                <button (click)="setFilterStatus('completado')"
+                        [class.bg-emerald-600]="filterStatus() === 'completado'"
+                        [class.text-white]="filterStatus() === 'completado'"
+                        class="px-3 py-1.5 text-xs rounded-lg border border-stone-200 hover:bg-stone-100 transition-colors">
+                  Completado
+                </button>
+                <button (click)="setFilterStatus('pendiente')"
+                        [class.bg-amber-600]="filterStatus() === 'pendiente'"
+                        [class.text-white]="filterStatus() === 'pendiente'"
+                        class="px-3 py-1.5 text-xs rounded-lg border border-stone-200 hover:bg-stone-100 transition-colors">
+                  Pendiente
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de Pagos -->
+        @if (filteredPayments.length === 0) {
+          <div class="bg-white/70 backdrop-blur-lg border border-stone-200/50 rounded-xl p-12 text-center">
+            <svg class="w-16 h-16 mx-auto text-stone-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <h3 class="font-serif text-xl text-stone-700 mb-2">No hay pagos</h3>
+            <p class="text-sm text-stone-500">
+              @if (filterType() !== 'all' || filterStatus() !== 'all') {
+                No se encontraron pagos con los filtros seleccionados.
+              } @else {
+                Aun no tienes pagos registrados.
+              }
+            </p>
+          </div>
+        } @else {
+          <div class="space-y-4">
+            @for (payment of filteredPayments; track payment.id) {
+              <div class="bg-white/70 backdrop-blur-lg border border-stone-200/50 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div class="p-5">
+                  <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+                    
+                    <!-- Info del carro -->
+                    <div class="flex items-center gap-4 flex-1">
+                      @if (payment.car?.image) {
+                        <img [src]="payment.car?.image" 
+                             [alt]="(payment.car?.brand || '') + ' ' + (payment.car?.model || '')"
+                             class="w-20 h-14 object-cover rounded-lg">
+                      } @else {
+                        <div class="w-20 h-14 bg-stone-200 rounded-lg flex items-center justify-center">
+                          <svg class="w-8 h-8 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                          </svg>
+                        </div>
+                      }
+                      <div>
+                        <h3 class="font-medium text-stone-900">
+                          {{ payment.car?.brand }} {{ payment.car?.model }}
+                        </h3>
+                        <p class="text-xs text-stone-500">
+                          Reserva #{{ payment.reservationId }} - {{ payment.car?.licensePlate }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Tipo y Metodo -->
+                    <div class="flex items-center gap-3">
+                      <span class="px-2.5 py-1 text-xs font-medium rounded-full"
+                            [ngClass]="paymentsService.getTypeColor(payment.type)">
+                        {{ paymentsService.getTypeLabel(payment.type) }}
+                      </span>
+                      <div class="flex items-center gap-1.5 text-stone-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getMethodIcon(payment.method)"/>
+                        </svg>
+                        <span class="text-xs">{{ paymentsService.getMethodLabel(payment.method) }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Monto -->
+                    <div class="text-right">
+                      <p class="text-xl font-serif text-stone-900">
+                        {{ paymentsService.formatCurrency(payment.amount) }}
+                      </p>
+                      <span class="px-2 py-0.5 text-xs font-medium rounded-full"
+                            [ngClass]="paymentsService.getStatusColor(payment.status)">
+                        {{ paymentsService.getStatusLabel(payment.status) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Detalles adicionales -->
+                  <div class="mt-4 pt-4 border-t border-stone-100 flex flex-wrap gap-4 text-xs text-stone-500">
+                    <div class="flex items-center gap-1.5">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                      <span>Creado: {{ paymentsService.formatDate(payment.createdAt) }}</span>
+                    </div>
+                    @if (payment.paidAt) {
+                      <div class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Pagado: {{ paymentsService.formatDate(payment.paidAt) }}</span>
+                      </div>
+                    }
+                    @if (payment.transactionId) {
+                      <div class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+                        </svg>
+                        <span>Transaccion: {{ payment.transactionId }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  </section>
+</main>
+
+<app-footer></app-footer>

@@ -1,0 +1,149 @@
+/* === GLASSMORPHISM === */
+
+.bg-white\/80 {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.bg-white\/60 {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* === STICKY SIDEBAR === */
+
+.sticky {
+  position: sticky;
+}
+
+.top-24 {
+  top: 6rem;
+}
+
+/* === LOADING ANIMATION === */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* === TRANSITIONS === */
+
+input,
+button,
+select {
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+}
+
+/* === CUSTOM RADIO BUTTONS === */
+
+input[type="radio"] {
+  accent-color: #000;
+}
+
+/* === CARD NUMBER INPUT === */
+
+input[type="text"].font-mono {
+  letter-spacing: 0.05em;
+}
+
+/* === GRADIENT BACKGROUNDS === */
+
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+.from-amber-50 {
+  --tw-gradient-from: #fffbeb;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(255, 251, 235, 0));
+}
+
+.to-amber-100 {
+  --tw-gradient-to: #fef3c7;
+}
+
+/* === PROGRESS INDICATOR === */
+
+.w-12 {
+  width: 3rem;
+}
+
+.h-0\.5 {
+  height: 0.125rem;
+}
+
+/* === DISABLED STATES === */
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === QR CODE CONTAINER === */
+
+.inline-block {
+  display: inline-block;
+}
+
+/* === SUCCESS CHECKMARK ANIMATION === */
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.success-icon {
+  animation: checkmark 0.6s ease-out;
+}
+
+/* === SMOOTH SCROLL === */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 1024px) {
+  .sticky {
+    position: relative;
+    top: 0;
+  }
+}
+
+/* === SVG ICONS === */
+
+svg {
+  display: inline-block;
+  vertical-align: middle;
+}

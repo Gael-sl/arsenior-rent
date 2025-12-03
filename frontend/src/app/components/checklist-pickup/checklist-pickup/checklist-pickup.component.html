@@ -1,0 +1,228 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-gray-50 section-padding">
+  <div class="container-custom">
+    <div class="max-w-4xl mx-auto">
+      
+      <h1 class="font-playfair text-center mb-4">Checklist de Recogida</h1>
+      <div class="divider"></div>
+
+      @if (reservation()) {
+        <div class="card mt-8 mb-6">
+          <h3 class="font-playfair mb-4">{{ reservation()!.car?.brand }} {{ reservation()!.car?.model }}</h3>
+          <p class="text-gray-600">Reserva #{{ reservation()!.id }}</p>
+          <p class="text-sm text-gray-600">{{ reservation()!.startDate }} - {{ reservation()!.endDate }}</p>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="error-message">{{ error() }}</div>
+      }
+
+      <!-- NUEVA FEATURE: Foto General del Vehículo -->
+      <div class="card mb-6">
+        <h3 class="font-playfair mb-4">📸 Foto General del Vehículo</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Toma una foto general del vehículo antes de recogerlo (recomendado)
+        </p>
+        
+        <input
+          type="file"
+          accept="image/*"
+          (change)="onVehiclePhotoSelected($event)"
+          class="mb-4"
+        />
+
+        @if (vehiclePhotoPreview) {
+          <img [src]="vehiclePhotoPreview" alt="Vehículo" class="w-full max-w-md mx-auto border-2 border-black" />
+        }
+      </div>
+
+      <!-- Condition Checks -->
+      <div class="card mb-6">
+        <h3 class="font-playfair mb-6">Estado del Vehículo</h3>
+        
+        <div class="space-y-6">
+          <!-- Exterior -->
+          <div>
+            <label>Condición Exterior</label>
+            <select [(ngModel)]="exteriorCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Notas (opcional)"
+              [(ngModel)]="exteriorCondition.notes"
+              class="mt-2"
+            />
+          </div>
+
+          <!-- Interior -->
+          <div>
+            <label>Condición Interior</label>
+            <select [(ngModel)]="interiorCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Notas (opcional)"
+              [(ngModel)]="interiorCondition.notes"
+              class="mt-2"
+            />
+          </div>
+
+          <!-- Tires -->
+          <div>
+            <label>Condición de Neumáticos</label>
+            <select [(ngModel)]="tiresCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+          </div>
+
+          <!-- Lights -->
+          <div>
+            <label>Luces y Señales</label>
+            <select [(ngModel)]="lightsCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+          </div>
+
+          <!-- Mechanical -->
+          <div>
+            <label>Condición Mecánica</label>
+            <select [(ngModel)]="mechanicalCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+          </div>
+
+          <!-- Fuel Level -->
+          <div>
+            <label>Nivel de Combustible: {{ fuelLevel }}%</label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="10"
+              [(ngModel)]="fuelLevel"
+              class="w-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Damages -->
+      <div class="card mb-6">
+        <h3 class="font-playfair mb-6">Daños Existentes</h3>
+        
+        <!-- Add Damage Form -->
+        <div class="bg-gray-50 p-4 mb-6 space-y-4">
+          <h4 class="font-semibold">Reportar Daño Existente</h4>
+          
+          <input
+            type="text"
+            placeholder="Ubicación del daño (ej: Puerta delantera izquierda)"
+            [(ngModel)]="newDamageLocation"
+          />
+          
+          <textarea
+            placeholder="Descripción del daño"
+            [(ngModel)]="newDamageDescription"
+            rows="2"
+          ></textarea>
+          
+          <select [(ngModel)]="newDamageSeverity">
+            <option value="leve">Leve</option>
+            <option value="moderado">Moderado</option>
+            <option value="grave">Grave</option>
+          </select>
+
+          <!-- NUEVA FEATURE: Foto del daño -->
+          <div>
+            <label class="text-sm">Foto del Daño (recomendado)</label>
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onDamagePhotoSelected($event)"
+            />
+            @if (newDamagePhotoPreview) {
+              <img [src]="newDamagePhotoPreview" alt="Daño" class="w-32 h-32 object-cover mt-2 border border-gray-300" />
+            }
+          </div>
+
+          <button (click)="addDamage()" class="btn-secondary w-full">
+            Agregar Daño
+          </button>
+        </div>
+
+        <!-- Damages List -->
+        @if (damages.length > 0) {
+          <div class="space-y-3">
+            <h4 class="font-semibold">Daños Reportados ({{ damages.length }})</h4>
+            @for (damage of damages; track $index) {
+              <div class="border border-gray-300 p-4 flex justify-between items-start">
+                <div class="flex-1">
+                  <p class="font-semibold">{{ damage.location }}</p>
+                  <p class="text-sm text-gray-600">{{ damage.description }}</p>
+                  <span class="badge mt-2">{{ damage.severity }}</span>
+                  @if (damage.photo) {
+                    <img [src]="damage.photo" alt="Daño" class="w-24 h-24 object-cover mt-2" />
+                  }
+                </div>
+                <button (click)="removeDamage($index)" class="btn-ghost py-1 px-2 text-sm">
+                  Eliminar
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="text-gray-600 text-center py-4">No se han reportado daños</p>
+        }
+      </div>
+
+      <!-- General Notes -->
+      <div class="card mb-6">
+        <label>Notas Generales</label>
+        <textarea
+          [(ngModel)]="generalNotes"
+          placeholder="Observaciones adicionales..."
+          rows="4"
+        ></textarea>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex gap-4">
+        <a routerLink="/my-reservations" class="btn-secondary flex-1 text-center">
+          Cancelar
+        </a>
+        <button
+          (click)="submitChecklist()"
+          class="btn-primary flex-1"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <span class="loading"></span>
+          } @else {
+            Confirmar Recogida
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>

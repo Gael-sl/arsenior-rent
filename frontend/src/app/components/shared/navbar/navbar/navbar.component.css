@@ -1,0 +1,4 @@
+/* Animaciones personalizadas para el hamburger */
+button span {
+  transform-origin: center;
+}

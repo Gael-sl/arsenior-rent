@@ -1,0 +1,256 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-gray-50">
+  
+  <!-- Header -->
+  <section class="bg-white border-b border-stone-200 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="font-serif text-2xl text-stone-900">Gestión de Reservas</h1>
+    </div>
+  </section>
+
+  <!-- Navigation -->
+  <section class="bg-white/80 backdrop-blur-lg border-b border-stone-200/50 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex gap-1 overflow-x-auto py-2">
+        <a routerLink="/admin" routerLinkActive="bg-black text-white" [routerLinkActiveOptions]="{exact: true}"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Dashboard
+        </a>
+        <a routerLink="/admin/inventory" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Inventario
+        </a>
+        <a routerLink="/admin/reservations" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Reservas
+        </a>
+        <a routerLink="/admin/tracking" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Tracking GPS
+        </a>
+        <a routerLink="/admin/maintenance" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Mantenimiento
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Content -->
+  <section class="section-padding">
+    <div class="container-custom">
+      
+      <app-loading-spinner *ngIf="loading()" [size]="300" message="Cargando reservas..."></app-loading-spinner>
+
+      <div *ngIf="error()" class="error-message">{{ error() }}</div>
+
+      <!-- Reservations Table -->
+      <div class="card overflow-x-auto">
+        <h2 class="font-playfair mb-6">Todas las Reservas ({{ reservations().length }})</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Vehículo</th>
+              <th>Inicio - Fin</th>
+              <th>Plan</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reservation of reservations()">
+              
+                <td>#{{ reservation.id }}</td>
+                <td>{{ reservation.user?.firstName }} {{ reservation.user?.lastName }}</td>
+                <td>{{ reservation.car?.brand }} {{ reservation.car?.model }}</td>
+                <td class="text-sm">
+                  {{ reservation.startDate }}<br/>{{ reservation.endDate }}
+                </td>
+                <td>{{ reservation.plan }}</td>
+                <td class="font-semibold">${{ reservation.totalAmount.toFixed(2) }} MXN</td>
+                <td>
+                  <span class="badge"
+                        [class.badge-success]="reservation.status === 'activa' || reservation.status === 'confirmada'"
+                        [class.badge-warning]="reservation.status === 'pendiente'">
+                    {{ reservation.status }}
+                  </span>
+                </td>
+                <td>
+                  <div class="flex flex-col gap-2">
+                    <!-- NUEVO: Confirmar pago del adelanto -->
+                    <ng-container *ngIf="reservation.status === 'pendiente'">
+                      <button (click)="confirmDeposit(reservation)" class="btn-primary text-xs py-1 px-2 whitespace-nowrap">
+                        Confirmar Pago
+                      </button>
+                      <p class="text-xs text-gray-600">Adelanto: ${{ reservation.depositAmount.toFixed(2) }} MXN</p>
+                    </ng-container>
+
+                    <!-- Marcar como devuelto -->
+                    <ng-container *ngIf="reservation.status === 'activa'">
+                      <button (click)="markAsReturned(reservation)" class="btn-primary text-xs py-1 px-2">
+                        Marcar Devuelto
+                      </button>
+                    </ng-container>
+
+                    <!-- Calificar usuario -->
+                    <ng-container *ngIf="reservation.status === 'completada' && reservation.returnChecklist">
+                      <button (click)="openRatingModal(reservation)" class="btn-secondary text-xs py-1 px-2">
+                        Calificar Usuario
+                      </button>
+                    </ng-container>
+
+                    <!-- Info si está confirmada -->
+                    <ng-container *ngIf="reservation.status === 'confirmada'">
+                      <span class="text-xs text-green-600">✓ Pago confirmado</span>
+                      <span class="text-xs text-gray-600">Esperando recogida</span>
+                    </ng-container>
+                  </div>
+                </td>
+
+              </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Rating Modal (Admin califica Usuario) -->
+<div *ngIf="showRatingModal()" class="overlay" (click)="closeRatingModal()">
+  <div class="modal p-8 max-w-lg bg-white/95 backdrop-blur-lg" (click)="$event.stopPropagation()">
+    <h2 class="font-playfair text-2xl mb-2">Calificar Usuario</h2>
+    <p class="text-sm text-stone-600 mb-6">Evalúa la experiencia con este cliente</p>
+    
+    <div class="space-y-6 mb-8">
+      <!-- Vehicle Return Condition -->
+      <div>
+        <label class="block mb-3 font-medium text-stone-800">
+          Estado de Devolución del Vehículo
+        </label>
+        <div class="flex items-center justify-between gap-4 mb-2">
+          <input 
+            type="range" 
+            min="1" 
+            max="5" 
+            [(ngModel)]="adminRating.vehicleReturnCondition" 
+            class="flex-1 h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-black"
+          />
+          <span class="text-2xl font-playfair font-bold min-w-[3ch] text-center">
+            {{ adminRating.vehicleReturnCondition }}
+          </span>
+        </div>
+        <div class="flex justify-between text-xs text-stone-500">
+          <span>Muy Malo</span>
+          <span>Excelente</span>
+        </div>
+      </div>
+
+      <!-- Punctuality -->
+      <div>
+        <label class="block mb-3 font-medium text-stone-800">
+          Puntualidad
+        </label>
+        <div class="flex items-center justify-between gap-4 mb-2">
+          <input 
+            type="range" 
+            min="1" 
+            max="5" 
+            [(ngModel)]="adminRating.punctuality" 
+            class="flex-1 h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-black"
+          />
+          <span class="text-2xl font-playfair font-bold min-w-[3ch] text-center">
+            {{ adminRating.punctuality }}
+          </span>
+        </div>
+        <div class="flex justify-between text-xs text-stone-500">
+          <span>Muy Impuntual</span>
+          <span>Muy Puntual</span>
+        </div>
+      </div>
+
+      <!-- Communication -->
+      <div>
+        <label class="block mb-3 font-medium text-stone-800">
+          Comunicación
+        </label>
+        <div class="flex items-center justify-between gap-4 mb-2">
+          <input 
+            type="range" 
+            min="1" 
+            max="5" 
+            [(ngModel)]="adminRating.communication" 
+            class="flex-1 h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-black"
+          />
+          <span class="text-2xl font-playfair font-bold min-w-[3ch] text-center">
+            {{ adminRating.communication }}
+          </span>
+        </div>
+        <div class="flex justify-between text-xs text-stone-500">
+          <span>Deficiente</span>
+          <span>Excelente</span>
+        </div>
+      </div>
+
+      <!-- Responsible Use -->
+      <div>
+        <label class="block mb-3 font-medium text-stone-800">
+          Uso Responsable del Vehículo
+        </label>
+        <div class="flex items-center justify-between gap-4 mb-2">
+          <input 
+            type="range" 
+            min="1" 
+            max="5" 
+            [(ngModel)]="adminRating.responsibleUse" 
+            class="flex-1 h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-black"
+          />
+          <span class="text-2xl font-playfair font-bold min-w-[3ch] text-center">
+            {{ adminRating.responsibleUse }}
+          </span>
+        </div>
+        <div class="flex justify-between text-xs text-stone-500">
+          <span>Irresponsable</span>
+          <span>Muy Responsable</span>
+        </div>
+      </div>
+
+      <!-- Overall Preview -->
+      <div class="bg-stone-900 text-white rounded-lg p-4 text-center">
+        <p class="text-xs uppercase tracking-wider opacity-80 mb-1">Calificación Promedio</p>
+        <p class="text-4xl font-playfair font-bold">
+          {{ ((adminRating.vehicleReturnCondition + adminRating.punctuality + adminRating.communication + adminRating.responsibleUse) / 4).toFixed(1) }}
+        </p>
+      </div>
+
+      <!-- Comments -->
+      <div>
+        <label class="block mb-3 font-medium text-stone-800">
+          Comentarios <span class="text-sm text-stone-500 font-normal">(opcional)</span>
+        </label>
+        <textarea 
+          [(ngModel)]="adminRating.comments" 
+          rows="4"
+          class="w-full border border-stone-300 rounded-lg p-3 focus:ring-2 focus:ring-stone-800 focus:border-transparent transition-all resize-none"
+          placeholder="Notas adicionales sobre el comportamiento del cliente..."
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="flex gap-4">
+      <button (click)="closeRatingModal()" class="btn-secondary flex-1 py-3">
+        Cancelar
+      </button>
+      <button (click)="submitRating()" class="btn-primary flex-1 py-3">
+        Enviar Calificación
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="w-screen relative left-1/2 right-1/2 -mx-[50vw]">
+  <app-footer></app-footer>
+</div>

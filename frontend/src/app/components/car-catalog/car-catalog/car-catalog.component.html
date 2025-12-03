@@ -1,0 +1,421 @@
+<app-navbar></app-navbar>
+
+<!-- Toast de Login Requerido -->
+@if (showLoginMessage()) {
+  <div class="fixed top-20 left-1/2 -translate-x-1/2 z-[100] animate-fade-in">
+    <div class="bg-amber-100 border border-amber-300 text-amber-800 px-6 py-3 rounded-xl shadow-lg flex items-center space-x-3">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <span class="font-medium">Inicia sesión para guardar favoritos</span>
+    </div>
+  </div>
+}
+
+<div class="min-h-screen bg-gradient-to-br from-stone-50 to-stone-100 transition-colors duration-300">
+
+  <!-- Page Title -->
+  <section class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8">
+        <h1 class="font-serif text-3xl md:text-4xl text-stone-900 mb-4">
+          Vehículos Disponibles
+        </h1>
+        <p class="text-stone-600 text-lg max-w-2xl mx-auto">
+          Estos son los vehículos disponibles para tu período seleccionado
+        </p>
+      </div>
+
+      <!-- Rental Period Banner -->
+      @if (rentalDates) {
+        <div class="bg-white/70 backdrop-blur-lg border border-stone-200/50 rounded-2xl p-5 mb-8 shadow-lg transition-colors duration-300">
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Dates Info -->
+            <div class="flex items-center space-x-6">
+              <!-- Calendar Icon -->
+              <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-600">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              
+              <!-- Date Range -->
+              <div class="flex items-center space-x-3">
+                <div class="text-center">
+                  <p class="text-xs text-stone-500 uppercase tracking-wide">Recogida</p>
+                  <p class="text-lg font-semibold text-stone-900">{{ formatDate(rentalDates.startDate) }}</p>
+                  <p class="text-sm text-stone-600">{{ rentalDates.startTime }}</p>
+                </div>
+                
+                <div class="flex items-center px-4">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-stone-400">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </div>
+                
+                <div class="text-center">
+                  <p class="text-xs text-stone-500 uppercase tracking-wide">Devolución</p>
+                  <p class="text-lg font-semibold text-stone-900">{{ formatDate(rentalDates.endDate) }}</p>
+                  <p class="text-sm text-stone-600">{{ rentalDates.endTime }}</p>
+                </div>
+              </div>
+              
+              <!-- Days Badge -->
+              <div class="hidden md:flex items-center space-x-2 bg-stone-100 px-4 py-2 rounded-lg">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-stone-600">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span class="font-semibold text-stone-800">{{ getRentalDays() }} días</span>
+              </div>
+            </div>
+            
+            <!-- Change Dates Button -->
+            <button
+              (click)="changeDates()"
+              class="flex items-center space-x-2 px-5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg transition-all"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              <span>Cambiar fechas</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Filters & Sorting -->
+      <div class="bg-white/60 backdrop-blur-sm border border-stone-200/50 rounded-2xl p-6 mb-8 shadow-lg">
+        <div class="flex flex-col md:flex-row gap-4">
+          <!-- Combined Filter -->
+          <div class="flex-1">
+            <label class="block text-xs uppercase tracking-wider text-stone-600 mb-2 font-semibold">Filtrar por</label>
+            <div class="flex items-center space-x-2">
+              <svg class="text-stone-600" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              <select
+                [(ngModel)]="filterBy"
+                (change)="applyFilters()"
+                class="flex-1 px-4 py-3 bg-white border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all"
+              >
+                <option value="all">Todos los vehículos</option>
+                <option value="premium">Premium (Segmento A)</option>
+                <option value="standard">Estándar (Segmento B)</option>
+                <option value="economic">Económico (Segmento C)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sort -->
+          <div class="flex-1">
+            <label class="block text-xs uppercase tracking-wider text-stone-600 mb-2 font-semibold">Ordenar por</label>
+            <div class="flex items-center space-x-2">
+              <svg class="text-stone-600" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="4" y1="12" x2="16" y2="12"/>
+                <line x1="4" y1="18" x2="12" y2="18"/>
+              </svg>
+              <select
+                [(ngModel)]="sortBy"
+                (change)="applyFilters()"
+                class="flex-1 px-4 py-3 bg-white border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all"
+              >
+                <option value="price-low">Precio: Menor a Mayor</option>
+                <option value="price-high">Precio: Mayor a Menor</option>
+                <option value="rating">Mejor Calificados</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Count -->
+      <div class="mb-6">
+        <p class="text-sm text-stone-600">
+          Mostrando <span class="text-black font-medium">{{ filteredCars().length }}</span> vehículos
+          @if (rentalDates) {
+            <span class="text-emerald-600"> • disponibles para tu período seleccionado</span>
+          }
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cars Grid -->
+  <section class="pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      @if (loading()) {
+        <div class="flex items-center justify-center py-20">
+          <div class="loading-lg"></div>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6">
+          <p class="text-sm text-red-700">{{ error() }}</p>
+        </div>
+      }
+
+      @if (!loading() && filteredCars().length === 0) {
+        <div class="text-center py-16">
+          <div class="w-16 h-16 bg-stone-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <svg class="text-stone-500" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </div>
+          <h3 class="text-lg text-stone-900 mb-2 font-serif">No se encontraron vehículos</h3>
+          <p class="text-stone-600 mb-4">Prueba ajustando los filtros de búsqueda</p>
+          <button (click)="clearFilters()" class="px-6 py-2 bg-black hover:bg-stone-800 text-white rounded-lg transition-all">
+            Limpiar Filtros
+          </button>
+        </div>
+      }
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @for (car of filteredCars(); track car.id) {
+          <div class="bg-white/60 backdrop-blur-sm border border-stone-200/50 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden group cursor-pointer">
+            
+            <!-- Car Image -->
+            <div class="relative aspect-[4/3] overflow-hidden">
+              @if (car.image) {
+                <img
+                  [src]="car.image"
+                  [alt]="car.brand + ' ' + car.model"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              } @else {
+                <div class="w-full h-full bg-stone-200 flex items-center justify-center">
+                  <span class="text-stone-400">Sin imagen</span>
+                </div>
+              }
+              
+              <!-- Status Badge -->
+              <div class="absolute top-3 left-3">
+                @if (car.status === 'disponible') {
+                  <span class="px-3 py-1 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-full text-xs font-medium">
+                    Disponible
+                  </span>
+                } @else if (car.status === 'rentado') {
+                  <span class="px-3 py-1 bg-amber-100 text-amber-700 border border-amber-200 rounded-full text-xs font-medium">
+                    Rentado
+                  </span>
+                } @else {
+                  <span class="px-3 py-1 bg-red-100 text-red-700 border border-red-200 rounded-full text-xs font-medium">
+                    Mantenimiento
+                  </span>
+                }
+              </div>
+
+              <!-- Rating Badge -->
+              <div class="absolute top-3 right-3 flex items-center space-x-2">
+                <!-- Favorite Button -->
+                <button
+                  (click)="toggleFavorite($event, car.id)"
+                  class="w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-all"
+                  [attr.aria-label]="isFavorite(car.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+                >
+                  @if (isFavorite(car.id)) {
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-red-500">
+                      <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                    </svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-stone-600">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                    </svg>
+                  }
+                </button>
+                
+                <!-- Rating -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-amber-500">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                  <span class="text-sm text-stone-700">{{ car.rating }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Car Info -->
+            <div class="p-6">
+              <div class="mb-4">
+                <h3 class="font-serif text-xl text-stone-900 mb-1">
+                  {{ car.brand }} {{ car.model }}
+                </h3>
+                <p class="text-stone-600 text-sm">{{ getSegmentLabel(car.segment) }} • {{ car.year }}</p>
+              </div>
+
+              <!-- Features -->
+              <div class="grid grid-cols-2 gap-3 mb-4 text-sm text-stone-600">
+                <div class="flex items-center space-x-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                  <span>{{ car.seats }} asientos</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v6m0 6v6"/>
+                  </svg>
+                  <span>{{ car.transmission }}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"/>
+                    <line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                  </svg>
+                  <span>{{ car.fuelType }}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                  <span>{{ car.totalRatings }} reseñas</span>
+                </div>
+              </div>
+
+              <!-- Plans -->
+              <div class="space-y-3 mb-6">
+                <!-- Plan Base -->
+                <div class="flex items-center justify-between p-3 bg-stone-50 rounded-lg border border-stone-200">
+                  <div class="flex items-center space-x-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-stone-600">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <span class="text-sm text-stone-700">Plan Base</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-stone-900 font-medium">${{ car.pricePerDay }} MXN/día</span>
+                    @if (rentalDates && getRentalDays() > 0) {
+                      <p class="text-xs text-emerald-600 font-medium">${{ car.pricePerDay * getRentalDays() }} MXN total</p>
+                    }
+                  </div>
+                </div>
+                
+                <!-- Plan Premier -->
+                <div class="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-amber-100 rounded-lg border border-amber-200">
+                  <div class="flex items-center space-x-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-700">
+                      <circle cx="12" cy="8" r="7"/>
+                      <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                    </svg>
+                    <span class="text-sm text-amber-700">Plan Premier</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-amber-800 font-medium">${{ getPremierPrice(car.pricePerDay) }} MXN/día</span>
+                    @if (rentalDates && getRentalDays() > 0) {
+                      <p class="text-xs text-amber-700 font-medium">${{ getPremierPrice(car.pricePerDay) * getRentalDays() }} MXN total</p>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="space-y-2">
+                <button
+                  [routerLink]="['/car', car.id]"
+                  [disabled]="car.status !== 'disponible'"
+                  class="w-full bg-black hover:bg-stone-800 text-white py-3 px-6 rounded-lg font-medium transition-all duration-300 disabled:bg-stone-300 disabled:cursor-not-allowed"
+                >
+                  {{ car.status === 'disponible' ? 'Ver Detalles' : 'No Disponible' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal de Cambio de Fechas -->
+@if (showDateModal()) {
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4" (click)="closeDateModal()">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="font-serif text-2xl text-stone-900">Cambiar Fechas</h3>
+        <button (click)="closeDateModal()" class="p-2 hover:bg-stone-100 rounded-lg transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Fecha de Recogida -->
+        <div>
+          <label class="block text-sm font-medium text-stone-700 mb-2">Fecha de Recogida</label>
+          <input
+            type="date"
+            [(ngModel)]="tempDates.startDate"
+            class="w-full px-4 py-3 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent"
+          />
+        </div>
+
+        <!-- Hora de Recogida -->
+        <div>
+          <label class="block text-sm font-medium text-stone-700 mb-2">Hora de Recogida</label>
+          <input
+            type="time"
+            [(ngModel)]="tempDates.startTime"
+            class="w-full px-4 py-3 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent"
+          />
+        </div>
+
+        <!-- Fecha de Devolución -->
+        <div>
+          <label class="block text-sm font-medium text-stone-700 mb-2">Fecha de Devolución</label>
+          <input
+            type="date"
+            [(ngModel)]="tempDates.endDate"
+            class="w-full px-4 py-3 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent"
+          />
+        </div>
+
+        <!-- Hora de Devolución -->
+        <div>
+          <label class="block text-sm font-medium text-stone-700 mb-2">Hora de Devolución</label>
+          <input
+            type="time"
+            [(ngModel)]="tempDates.endTime"
+            class="w-full px-4 py-3 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent"
+          />
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button
+          (click)="closeDateModal()"
+          class="flex-1 px-4 py-3 border-2 border-stone-200 text-stone-700 rounded-lg font-medium hover:bg-stone-50 transition-all"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="updateDates()"
+          class="flex-1 px-4 py-3 bg-black text-white rounded-lg font-medium hover:bg-stone-800 transition-all"
+        >
+          Actualizar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<app-footer></app-footer>

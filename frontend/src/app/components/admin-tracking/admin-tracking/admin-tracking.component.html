@@ -1,0 +1,162 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-gray-50">
+  
+  <!-- Header -->
+  <section class="bg-white border-b border-stone-200 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="font-serif text-2xl text-stone-900">Tracking GPS en Tiempo Real</h1>
+    </div>
+  </section>
+
+  <!-- Navigation -->
+  <section class="bg-white/80 backdrop-blur-lg border-b border-stone-200/50 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex gap-1 overflow-x-auto py-2">
+        <a routerLink="/admin" routerLinkActive="bg-black text-white" [routerLinkActiveOptions]="{exact: true}"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Dashboard
+        </a>
+        <a routerLink="/admin/inventory" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Inventario
+        </a>
+        <a routerLink="/admin/reservations" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Reservas
+        </a>
+        <a routerLink="/admin/tracking" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Tracking GPS
+        </a>
+        <a routerLink="/admin/maintenance" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Mantenimiento
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Content -->
+  <section class="section-padding">
+    <div class="container-custom">
+      
+      <!-- Header con controles -->
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="font-playfair">Tracking GPS en Sinaloa</h2>
+          <p class="text-sm text-gray-600 mt-1">
+            {{ activeRentals().length }} vehículos activos
+            <span *ngIf="lastUpdate()" class="ml-2">
+              • Última actualización: {{ formatTimestamp(lastUpdate()!.toISOString()) }}
+            </span>
+          </p>
+        </div>
+        <div class="flex gap-3">
+          <button 
+            (click)="toggleAutoRefresh()" 
+            [class.btn-primary]="autoRefresh()"
+            [class.btn-secondary]="!autoRefresh()"
+            class="text-sm">
+            {{ autoRefresh() ? '⏸ Auto-refresh ON' : '▶ Auto-refresh OFF' }}
+          </button>
+          <button (click)="simulateMovement()" class="btn-secondary text-sm flex items-center space-x-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+              <line x1="12" y1="22.08" x2="12" y2="12"/>
+            </svg>
+            <span>Simular Movimiento</span>
+          </button>
+          <button (click)="refreshData()" class="btn-primary text-sm flex items-center space-x-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            <span>Actualizar</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="loading()">
+        <app-loading-spinner [size]="300" message="Cargando ubicaciones..."></app-loading-spinner>
+      </div>
+
+      <div *ngIf="error()" class="error-message mb-6">{{ error() }}</div>
+
+      <!-- Map -->
+      <div class="card mb-8 p-0 overflow-hidden" style="box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+        <div id="map" class="w-full h-[600px]"></div>
+      </div>
+
+      <!-- Active Rentals List -->
+      <div class="card bg-white/80 backdrop-blur-lg">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="font-playfair">Lista de Vehículos Activos</h3>
+          <span class="text-sm text-gray-500">
+            Mostrando ubicaciones en tiempo real
+          </span>
+        </div>
+
+        <div *ngIf="!loading() && activeRentals().length > 0" class="space-y-3">
+          <div *ngFor="let rental of activeRentals()" 
+               class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+            <div class="flex justify-between items-start">
+              <div class="flex-1">
+                <h4 class="font-semibold text-lg">{{ rental.car.brand }} {{ rental.car.model }}</h4>
+                <p class="text-sm text-gray-600 mt-1">
+                  👤 {{ rental.user.firstName }} {{ rental.user.lastName }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                  Reserva #{{ rental.reservation.id }} • Plan: {{ rental.reservation.plan }}
+                </p>
+              </div>
+              
+              <div *ngIf="rental.currentLocation" class="text-right text-sm ml-4">
+                <div class="bg-black text-white px-3 py-1 rounded-full mb-2 inline-flex items-center space-x-1">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                    <line x1="6" y1="1" x2="6" y2="4"/>
+                    <line x1="10" y1="1" x2="10" y2="4"/>
+                    <line x1="14" y1="1" x2="14" y2="4"/>
+                  </svg>
+                  <span>{{ rental.currentLocation.speed || 0 }} km/h</span>
+                </div>
+                <p class="text-gray-600 font-mono text-xs">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline mr-1">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  {{ rental.currentLocation.latitude.toFixed(5) }}, 
+                  {{ rental.currentLocation.longitude.toFixed(5) }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                  {{ formatTimestamp(rental.currentLocation.timestamp) }}
+                </p>
+              </div>
+              
+              <div *ngIf="!rental.currentLocation" class="text-right text-sm ml-4">
+                <p class="text-gray-500">📡 Sin señal GPS</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!loading() && activeRentals().length === 0" 
+             class="text-center py-16">
+          <svg class="w-20 h-20 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+          </svg>
+          <p class="text-gray-600 font-playfair text-lg">No hay vehículos en ruta</p>
+          <p class="text-sm text-gray-500 mt-2">Las rentas activas aparecerán aquí automáticamente</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="w-screen relative left-1/2 right-1/2 -mx-[50vw]">
+  <app-footer></app-footer>
+</div>

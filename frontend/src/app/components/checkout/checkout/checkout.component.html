@@ -1,0 +1,526 @@
+<app-navbar></app-navbar>
+
+<div class="min-h-screen bg-gradient-to-br from-stone-50 to-stone-100">
+
+  @if (!checkoutData) {
+    <div class="flex items-center justify-center py-20">
+      <div class="text-center">
+        <p class="text-stone-600 mb-4">No hay datos de reserva</p>
+        <a routerLink="/catalog" class="px-6 py-2 bg-black hover:bg-stone-800 text-white rounded-lg transition-all">
+          Volver al Catálogo
+        </a>
+      </div>
+    </div>
+  }
+
+  @if (checkoutData) {
+    <!-- PASO 1: PAGO -->
+    @if (currentStep === 'payment') {
+      <section class="py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- COLUMNA IZQUIERDA - Métodos de Pago -->
+            <div class="lg:col-span-2 space-y-6">
+              
+              <!-- Título con botón de volver -->
+              <div class="text-center lg:text-left">
+                <div class="flex items-center gap-4 mb-2">
+                  <button
+                    (click)="goBack()"
+                    class="p-2 hover:bg-stone-100 rounded-lg transition-all flex items-center justify-center"
+                    title="Volver"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="19" y1="12" x2="5" y2="12"/>
+                      <polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                  </button>
+                  <h1 class="font-serif text-3xl md:text-4xl text-stone-900">Pago de Adelanto</h1>
+                </div>
+                <p class="text-stone-600 lg:ml-14">Selecciona tu método de pago preferido</p>
+              </div>
+
+              <!-- Opciones de Pago -->
+              <div class="bg-white/60 backdrop-blur-sm border border-stone-200/50 shadow-lg rounded-2xl p-6">
+                <h3 class="text-xl font-serif text-stone-900 mb-6">Método de Pago</h3>
+                
+                <div class="space-y-4">
+                  <!-- Opción: Tarjeta -->
+                  <div
+                    (click)="paymentMethod = 'card'"
+                    [class.border-black]="paymentMethod === 'card'"
+                    [class.bg-stone-50]="paymentMethod === 'card'"
+                    class="p-4 border-2 border-stone-200 rounded-xl cursor-pointer transition-all hover:border-stone-400"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="font-medium text-stone-900">Tarjeta de Crédito/Débito</p>
+                          <p class="text-sm text-stone-600">Visa, Mastercard, American Express</p>
+                        </div>
+                      </div>
+                      <div [class.bg-black]="paymentMethod === 'card'" class="w-5 h-5 rounded-full border-2 border-stone-400 flex items-center justify-center">
+                        @if (paymentMethod === 'card') {
+                          <div class="w-2.5 h-2.5 bg-white rounded-full"></div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Opción: Pago en Tienda -->
+                  <div
+                    (click)="paymentMethod = 'store'"
+                    [class.border-black]="paymentMethod === 'store'"
+                    [class.bg-stone-50]="paymentMethod === 'store'"
+                    class="p-4 border-2 border-stone-200 rounded-xl cursor-pointer transition-all hover:border-stone-400"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="font-medium text-stone-900">Pago en Tienda</p>
+                          <p class="text-sm text-stone-600">OXXO, 7-Eleven, Extra</p>
+                        </div>
+                      </div>
+                      <div [class.bg-black]="paymentMethod === 'store'" class="w-5 h-5 rounded-full border-2 border-stone-400 flex items-center justify-center">
+                        @if (paymentMethod === 'store') {
+                          <div class="w-2.5 h-2.5 bg-white rounded-full"></div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Formulario de Tarjeta -->
+              @if (paymentMethod === 'card') {
+                <div class="bg-white/60 backdrop-blur-sm border border-stone-200/50 shadow-lg rounded-2xl p-6">
+                  <h3 class="text-lg font-serif text-stone-900 mb-6">Datos de la Tarjeta</h3>
+                  
+                  <div class="space-y-4">
+                    <!-- Número de Tarjeta -->
+                    <div>
+                      <label class="block text-sm font-medium text-stone-700 mb-2">
+                        Número de Tarjeta
+                      </label>
+                      <div class="relative">
+                        <input
+                          type="text"
+                          [(ngModel)]="cardData.number"
+                          (input)="formatCardNumber()"
+                          maxlength="19"
+                          placeholder="1234 5678 9012 3456"
+                          class="w-full px-4 py-3 pl-12 pr-20 bg-white/50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all font-mono"
+                        />
+                        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 text-stone-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                          <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        @if (cardType !== 'unknown') {
+                          <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-xs font-semibold px-2 py-1 rounded"
+                                [class.bg-blue-100]="cardType === 'visa'"
+                                [class.text-blue-700]="cardType === 'visa'"
+                                [class.bg-orange-100]="cardType === 'mastercard'"
+                                [class.text-orange-700]="cardType === 'mastercard'"
+                                [class.bg-emerald-100]="cardType === 'amex'"
+                                [class.text-emerald-700]="cardType === 'amex'">
+                            {{ getCardTypeLabel() }}
+                          </span>
+                        }
+                      </div>
+                      @if (cardValidation.errors.length > 0 && cardData.number.length > 0) {
+                        <p class="text-xs text-red-600 mt-1">{{ cardValidation.errors[0] }}</p>
+                      }
+                    </div>
+
+                    <!-- Nombre en Tarjeta -->
+                    <div>
+                      <label class="block text-sm font-medium text-stone-700 mb-2">
+                        Nombre del Titular
+                      </label>
+                      <input
+                        type="text"
+                        [(ngModel)]="cardData.name"
+                        (input)="onNameInput()"
+                        placeholder="JUAN PEREZ"
+                        class="w-full px-4 py-3 bg-white/50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all uppercase"
+                      />
+                    </div>
+
+                    <!-- Fecha y CVV -->
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-sm font-medium text-stone-700 mb-2">
+                          Fecha de Expiración
+                        </label>
+                        <input
+                          type="text"
+                          [(ngModel)]="cardData.expiry"
+                          (input)="formatExpiry()"
+                          maxlength="5"
+                          placeholder="MM/AA"
+                          class="w-full px-4 py-3 bg-white/50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-stone-700 mb-2">
+                          CVV
+                        </label>
+                        <input
+                          type="text"
+                          [(ngModel)]="cardData.cvv"
+                          (input)="onCvvInput()"
+                          [maxlength]="cardType === 'amex' ? 4 : 3"
+                          [placeholder]="cardType === 'amex' ? '1234' : '123'"
+                          class="w-full px-4 py-3 bg-white/50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Información de Pago en Tienda -->
+              @if (paymentMethod === 'store') {
+                <div class="bg-white/60 backdrop-blur-sm border border-stone-200/50 shadow-lg rounded-2xl p-6">
+                  <h3 class="text-lg font-serif text-stone-900 mb-4">Instrucciones de Pago</h3>
+                  
+                  <div class="space-y-4 text-sm text-stone-700">
+                    <div class="flex items-start space-x-3">
+                      <div class="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium">1</div>
+                      <p>Dirígete a cualquier tienda OXXO, 7-Eleven o Extra</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                      <div class="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium">2</div>
+                      <p>Presenta el código de referencia generado después de confirmar</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                      <div class="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium">3</div>
+                      <p>Realiza el pago en efectivo (máximo 24 horas)</p>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                      <div class="w-6 h-6 bg-black text-white rounded-full flex items-center justify-center flex-shrink-0 text-xs font-medium">4</div>
+                      <p>Recibirás confirmación por email una vez procesado el pago</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-6 p-4 bg-stone-50 rounded-lg border border-stone-200">
+                    <p class="text-xs text-stone-600">
+                      <strong>Importante:</strong> El código de pago tiene validez de 24 horas. Si no se realiza el pago en este período, la reserva será cancelada automáticamente.
+                    </p>
+                  </div>
+                </div>
+              }
+
+              <!-- Seguridad -->
+              <div class="flex items-center justify-center space-x-6 text-sm text-stone-600">
+                <div class="flex items-center space-x-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <span>Pago Seguro</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  <span>Cifrado SSL</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- COLUMNA DERECHA - Resumen Sticky -->
+            <div class="lg:col-span-1">
+              <div class="sticky top-24 bg-white/80 backdrop-blur-lg border border-stone-200/50 shadow-2xl rounded-2xl p-6">
+                <h3 class="text-xl font-serif text-stone-900 mb-6">Resumen de Reserva</h3>
+
+                <!-- Car Image -->
+                <div class="aspect-video bg-stone-200 rounded-lg overflow-hidden mb-4">
+                  @if (checkoutData.car.image) {
+                    <img [src]="checkoutData.car.image" [alt]="checkoutData.car.brand" class="w-full h-full object-cover" />
+                  }
+                </div>
+
+                <!-- Car Info -->
+                <div class="mb-4 pb-4 border-b border-stone-200">
+                  <h4 class="font-serif text-lg text-stone-900">{{ checkoutData.car.brand }} {{ checkoutData.car.model }}</h4>
+                  <p class="text-sm text-stone-600">{{ checkoutData.car.year }}</p>
+                </div>
+
+                <!-- Dates -->
+                <div class="space-y-3 mb-4 pb-4 border-b border-stone-200">
+                  <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                    <div class="flex items-center space-x-2 mb-2">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-600">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                      </svg>
+                      <span class="text-xs text-emerald-700 font-medium uppercase">Período de renta</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                      <div>
+                        <p class="text-xs text-emerald-600">Recogida</p>
+                        <p class="font-medium text-emerald-900">{{ formatDate(checkoutData.startDate) }}</p>
+                        @if (checkoutData.startTime) {
+                          <p class="text-xs text-emerald-700">{{ checkoutData.startTime }}</p>
+                        }
+                      </div>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-400">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                      </svg>
+                      <div class="text-right">
+                        <p class="text-xs text-emerald-600">Devolución</p>
+                        <p class="font-medium text-emerald-900">{{ formatDate(checkoutData.endDate) }}</p>
+                        @if (checkoutData.endTime) {
+                          <p class="text-xs text-emerald-700">{{ checkoutData.endTime }}</p>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex justify-between text-sm">
+                    <span class="text-stone-600">Días de renta:</span>
+                    <span class="text-stone-900 font-medium">{{ checkoutData.totalDays }} días</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-stone-600">Plan:</span>
+                    <span class="text-stone-900 font-medium">{{ checkoutData.plan }}</span>
+                  </div>
+                </div>
+
+                <!-- Extras -->
+                @if (checkoutData.extras.length > 0) {
+                  <div class="mb-4 pb-4 border-b border-stone-200">
+                    <p class="text-sm font-medium text-stone-900 mb-2">Extras:</p>
+                    @for (extra of checkoutData.extras; track extra.id) {
+                      <div class="flex justify-between text-sm mb-1">
+                        <span class="text-stone-600">{{ extra.name }} (x{{ extra.quantity }})</span>
+                        <span class="text-stone-900">${{ extra.price * extra.quantity * checkoutData.totalDays }} MXN</span>
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Pricing -->
+                <div class="space-y-2 mb-6 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-stone-600">Subtotal:</span>
+                    <span class="text-stone-900">${{ checkoutData.subtotal }} MXN</span>
+                  </div>
+                  @if (checkoutData.extrasTotal > 0) {
+                  <div class="flex justify-between">
+                    <span class="text-stone-600">Extras:</span>
+                      <span class="text-stone-900">${{ checkoutData.extrasTotal }} MXN</span>
+                  </div>
+                  }
+                  <div class="flex justify-between text-lg font-bold mt-4 pt-4 border-t border-stone-300">
+                    <span class="text-stone-900">Total:</span>
+                    <span class="text-stone-900">${{ checkoutData.total }} MXN</span>
+                  </div>
+                </div>
+
+                <!-- Adelanto -->
+                <div class="bg-stone-50 p-4 rounded-lg mb-6">
+                  <div class="text-center">
+                    <p class="text-sm text-stone-600 mb-1">Adelanto a Pagar (30%)</p>
+                    <p class="text-3xl font-serif text-stone-900">${{ depositAmount }} MXN</p>
+                    <p class="text-xs text-stone-500 mt-2">Resto (70%): ${{ checkoutData.total - depositAmount }} MXN en agencia</p>
+                  </div>
+                </div>
+
+                <!-- Botón de Pago -->
+                <button
+                  (click)="processPayment()"
+                  [disabled]="processing() || !isPaymentValid()"
+                  class="w-full bg-black hover:bg-stone-800 text-white py-3 px-6 rounded-lg font-medium transition-all duration-300 disabled:bg-stone-300 disabled:cursor-not-allowed"
+                >
+                  @if (processing()) {
+                    <span class="flex items-center justify-center">
+                      <span class="loading mr-2"></span>
+                      Procesando...
+                    </span>
+                  } @else {
+                    @if (paymentMethod === 'card') {
+                      Pagar ${{ depositAmount }} MXN
+                    } @else {
+                      Generar Código de Pago
+                    }
+                  }
+                </button>
+
+                <p class="text-xs text-center text-stone-500 mt-4">
+                  Tus datos están protegidos con cifrado SSL
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- PASO 2: ÉXITO CON QR -->
+    @if (currentStep === 'success') {
+      <section class="py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <!-- Success Icon -->
+          <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-black rounded-full mx-auto mb-6 flex items-center justify-center">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <h1 class="font-serif text-4xl text-stone-900 mb-2">¡Pago Exitoso!</h1>
+            <p class="text-lg text-stone-600">Tu reserva ha sido confirmada</p>
+          </div>
+
+          <!-- QR Card -->
+          <div class="bg-white/80 backdrop-blur-lg border border-stone-200/50 shadow-2xl rounded-2xl p-8 mb-6">
+            <div class="text-center">
+              <h2 class="text-2xl font-serif text-stone-900 mb-2">Código QR de Reserva</h2>
+              <p class="text-stone-600 mb-8">Presenta este código en la agencia el día de tu renta</p>
+
+              <!-- QR Code -->
+              @if (qrCodeUrl()) {
+                <div class="flex flex-col items-center">
+                  <div class="inline-block bg-white p-6 rounded-2xl shadow-lg mb-4">
+                    <img [src]="qrCodeUrl()" alt="QR Code" class="w-64 h-64" />
+                  </div>
+                  
+                  <!-- Reservation Code - directamente debajo del QR -->
+                  <div class="bg-stone-50 p-4 rounded-lg w-full max-w-sm">
+                    <p class="text-sm text-stone-600 mb-1">Código de Reserva</p>
+                    <p class="text-2xl font-mono font-bold text-stone-900">{{ reservationCode }}</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Instrucciones -->
+          <div class="bg-white/60 backdrop-blur-sm border border-stone-200/50 shadow-lg rounded-2xl p-6 mb-6">
+            <h3 class="text-xl font-serif text-stone-900 mb-4">Instrucciones Importantes</h3>
+            
+            <div class="space-y-4">
+              <div class="flex items-start space-x-4">
+                <div class="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center flex-shrink-0 font-medium">1</div>
+                <div>
+                  <p class="font-medium text-stone-900 mb-1">Presenta tu QR en la agencia</p>
+                  <p class="text-sm text-stone-600">El día {{ checkoutData.startDate }} dirígete a nuestra sucursal con tu QR y documentos</p>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-4">
+                <div class="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center flex-shrink-0 font-medium">2</div>
+                <div>
+                  <p class="font-medium text-stone-900 mb-1">Paga el resto</p>
+                  <p class="text-sm text-stone-600">Completa el pago de ${{ checkoutData.total - depositAmount }} MXN (70% restante)</p>
+                </div>
+              </div>
+
+              <div class="flex items-start space-x-4">
+                <div class="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center flex-shrink-0 font-medium">3</div>
+                <div>
+                  <p class="font-medium text-stone-900 mb-1">Recoge tu vehículo</p>
+                  <p class="text-sm text-stone-600">Firma el contrato, realiza la inspección y disfruta tu viaje</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documentos Requeridos -->
+          <div class="bg-white/60 backdrop-blur-sm border border-stone-200/50 shadow-lg rounded-2xl p-6 mb-6">
+            <h3 class="text-lg font-serif text-stone-900 mb-4">Documentos Requeridos</h3>
+            <ul class="space-y-2 text-sm text-stone-700">
+              <li class="flex items-center space-x-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>Licencia de conducir vigente</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>Identificación oficial (INE/Pasaporte)</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>Comprobante de domicilio (no mayor a 3 meses)</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>Código QR de reserva (este código)</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Resumen de Pago -->
+          <div class="bg-white/60 backdrop-blur-sm border border-stone-200/50 shadow-lg rounded-2xl p-6 mb-8">
+            <h3 class="text-lg font-serif text-stone-900 mb-4">Resumen de Pago</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-stone-600">Adelanto pagado (30%):</span>
+                <span class="text-emerald-700 font-medium">${{ depositAmount }} ✓</span>
+              </div>
+              <div class="flex justify-between pb-2 border-b border-stone-200">
+                <span class="text-stone-600">Pendiente en agencia (70%):</span>
+                <span class="text-stone-900 font-medium">${{ checkoutData.total - depositAmount }}</span>
+              </div>
+              <div class="flex justify-between text-base font-serif pt-2">
+                <span class="text-stone-900">Total:</span>
+                <span class="text-stone-900">${{ checkoutData.total }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              (click)="downloadQR()"
+              class="px-8 py-3 bg-white hover:bg-stone-50 text-stone-900 rounded-lg font-medium border-2 border-stone-200 transition-all"
+            >
+              Descargar QR
+            </button>
+            <button
+              routerLink="/my-reservations"
+              class="px-8 py-3 bg-black hover:bg-stone-800 text-white rounded-lg font-medium transition-all"
+            >
+              Ver Mis Reservas
+            </button>
+          </div>
+
+          <!-- Contacto -->
+          <div class="mt-8 text-center">
+            <p class="text-sm text-stone-600 mb-2">¿Necesitas ayuda?</p>
+            <a href="tel:+526871471538" class="text-stone-900 font-medium hover:underline">+52 687 147 15 38</a>
+            <span class="text-stone-400 mx-2">•</span>
+            <a href="mailto:arseniorrent@gmail.com" class="text-stone-900 font-medium hover:underline">arseniorrent@gmail.com</a>
+          </div>
+        </div>
+      </section>
+    }
+  }
+</div>
+
+<app-footer></app-footer>

@@ -1,0 +1,284 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-gray-50 section-padding">
+  <div class="container-custom">
+    <div class="max-w-4xl mx-auto">
+      
+      <h1 class="font-playfair text-center mb-4">Checklist de Devolución</h1>
+      <div class="divider"></div>
+
+      @if (reservation()) {
+        <div class="card mt-8 mb-6">
+          <h3 class="font-playfair mb-4">{{ reservation()!.car?.brand }} {{ reservation()!.car?.model }}</h3>
+          <p class="text-gray-600">Reserva #{{ reservation()!.id }}</p>
+          <p class="text-sm text-gray-600">{{ reservation()!.startDate }} - {{ reservation()!.endDate }}</p>
+        </div>
+      }
+
+      @if (error()) {
+        <div class="error-message">{{ error() }}</div>
+      }
+
+      <!-- NUEVA FEATURE: Nombre de quien recibe -->
+      <div class="card mb-6 bg-yellow-50 border-yellow-500">
+        <h3 class="font-playfair mb-4">👤 Información de Recepción</h3>
+        <label>Nombre Completo de quien Recibe el Vehículo *</label>
+        <input
+          type="text"
+          [(ngModel)]="receivedBy"
+          placeholder="Ej: Juan Pérez (Empleado Arsenior Rent)"
+          required
+          class="bg-white"
+        />
+        <p class="text-xs text-gray-600 mt-2">Este campo es OBLIGATORIO</p>
+      </div>
+
+      <!-- NUEVA FEATURE: Foto General del Vehículo OBLIGATORIA -->
+      <div class="card mb-6 bg-yellow-50 border-yellow-500">
+        <h3 class="font-playfair mb-4">📸 Foto General del Vehículo *</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          La foto del vehículo es OBLIGATORIA en la devolución para verificar el estado
+        </p>
+        
+        <input
+          type="file"
+          accept="image/*"
+          (change)="onVehiclePhotoSelected($event)"
+          required
+          class="mb-4"
+        />
+
+        @if (vehiclePhotoPreview) {
+          <img [src]="vehiclePhotoPreview" alt="Vehículo" class="w-full max-w-md mx-auto border-2 border-black" />
+        } @else {
+          <div class="bg-white border-2 border-dashed border-gray-300 p-8 text-center text-gray-400">
+            Sin foto - OBLIGATORIA
+          </div>
+        }
+      </div>
+
+      <!-- Condition Checks (igual que pickup) -->
+      <div class="card mb-6">
+        <h3 class="font-playfair mb-6">Estado del Vehículo</h3>
+        
+        <div class="space-y-6">
+          <div>
+            <label>Condición Exterior</label>
+            <select [(ngModel)]="exteriorCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Notas (opcional)"
+              [(ngModel)]="exteriorCondition.notes"
+              class="mt-2"
+            />
+          </div>
+
+          <div>
+            <label>Condición Interior</label>
+            <select [(ngModel)]="interiorCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Notas (opcional)"
+              [(ngModel)]="interiorCondition.notes"
+              class="mt-2"
+            />
+          </div>
+
+          <div>
+            <label>Condición de Neumáticos</label>
+            <select [(ngModel)]="tiresCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Luces y Señales</label>
+            <select [(ngModel)]="lightsCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Condición Mecánica</label>
+            <select [(ngModel)]="mechanicalCondition.status">
+              <option value="excelente">Excelente</option>
+              <option value="bueno">Bueno</option>
+              <option value="regular">Regular</option>
+              <option value="malo">Malo</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Nivel de Combustible: {{ fuelLevel }}%</label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="10"
+              [(ngModel)]="fuelLevel"
+              class="w-full"
+            />
+            @if (fuelLevel < 100) {
+              <p class="text-sm text-yellow-600 mt-2">
+                ⚠️ Se aplicará cargo por combustible faltante
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Damages with PHOTO REQUIRED -->
+      <div class="card mb-6">
+        <h3 class="font-playfair mb-6">Daños Nuevos (No presentes al recoger)</h3>
+        
+        <div class="bg-yellow-50 p-4 mb-6 space-y-4 border border-yellow-500">
+          <h4 class="font-semibold">Reportar Daño Nuevo</h4>
+          <p class="text-xs text-gray-600">⚠️ La FOTO del daño es OBLIGATORIA para aplicar cargos</p>
+          
+          <input
+            type="text"
+            placeholder="Ubicación del daño *"
+            [(ngModel)]="newDamageLocation"
+          />
+          
+          <textarea
+            placeholder="Descripción del daño *"
+            [(ngModel)]="newDamageDescription"
+            rows="2"
+          ></textarea>
+          
+          <select [(ngModel)]="newDamageSeverity">
+            <option value="leve">Leve</option>
+            <option value="moderado">Moderado</option>
+            <option value="grave">Grave</option>
+          </select>
+
+          <div>
+            <label>Costo Estimado de Reparación ($)</label>
+            <input
+              type="number"
+              [(ngModel)]="newDamageEstimatedCost"
+              min="0"
+              placeholder="0.00"
+            />
+          </div>
+
+          <!-- FOTO OBLIGATORIA -->
+          <div class="bg-white p-4 border-2 border-red-500">
+            <label class="text-sm font-semibold text-red-600">Foto del Daño (OBLIGATORIA) *</label>
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onDamagePhotoSelected($event)"
+              required
+            />
+            @if (newDamagePhotoPreview) {
+              <img [src]="newDamagePhotoPreview" alt="Daño" class="w-32 h-32 object-cover mt-2 border-2 border-black" />
+            } @else {
+              <p class="text-xs text-red-600 mt-2">Sin foto - OBLIGATORIA para cargos</p>
+            }
+          </div>
+
+          <button (click)="addDamage()" class="btn-secondary w-full">
+            Agregar Daño
+          </button>
+        </div>
+
+        @if (damages.length > 0) {
+          <div class="space-y-3">
+            <h4 class="font-semibold text-red-600">Daños Nuevos Reportados ({{ damages.length }})</h4>
+            @for (damage of damages; track $index) {
+              <div class="border-2 border-red-500 p-4 flex justify-between items-start bg-red-50">
+                <div class="flex-1">
+                  <p class="font-semibold">{{ damage.location }}</p>
+                  <p class="text-sm text-gray-600">{{ damage.description }}</p>
+                  <span class="badge badge-danger mt-2">{{ damage.severity }}</span>
+                  @if (damage.estimatedCost) {
+                    <p class="text-sm font-semibold mt-2 text-red-600">Costo: ${{ damage.estimatedCost }}</p>
+                  }
+                  @if (damage.photo) {
+                    <img [src]="damage.photo" alt="Daño" class="w-32 h-32 object-cover mt-2 border-2 border-black" />
+                  }
+                </div>
+                <button (click)="removeDamage($index)" class="btn-ghost py-1 px-2 text-sm">
+                  Eliminar
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Extra Charges Summary -->
+      @if (extraCharges.length > 0) {
+        <div class="card mb-6 bg-red-50 border-red-500">
+          <h3 class="font-playfair mb-4 text-red-600">Cargos Adicionales</h3>
+          <div class="space-y-2">
+            @for (charge of extraCharges; track $index) {
+              <div class="flex justify-between text-sm">
+                <span>{{ charge.concept }}</span>
+                <span class="font-semibold text-red-600">${{ charge.amount }}</span>
+              </div>
+            }
+            <div class="border-t-2 border-red-600 pt-2 flex justify-between font-semibold text-lg">
+              <span>Total Cargos Extras:</span>
+              <span class="text-red-600">${{ getTotalExtraCharges() }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- General Notes -->
+      <div class="card mb-6">
+        <label>Notas Generales</label>
+        <textarea
+          [(ngModel)]="generalNotes"
+          placeholder="Observaciones adicionales..."
+          rows="4"
+        ></textarea>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex gap-4">
+        <a routerLink="/my-reservations" class="btn-secondary flex-1 text-center">
+          Cancelar
+        </a>
+        <button
+          (click)="submitChecklist()"
+          class="btn-primary flex-1"
+          [disabled]="loading() || !vehiclePhoto || !receivedBy"
+        >
+          @if (loading()) {
+            <span class="loading"></span>
+          } @else {
+            Confirmar Devolución
+          }
+        </button>
+      </div>
+
+      @if (!vehiclePhoto || !receivedBy) {
+        <p class="text-center text-red-600 text-sm mt-4">
+          ⚠️ Completa todos los campos obligatorios (*)
+        </p>
+      }
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>

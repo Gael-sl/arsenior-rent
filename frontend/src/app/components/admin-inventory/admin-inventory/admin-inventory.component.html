@@ -1,0 +1,210 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-gray-50">
+  
+  <!-- Header -->
+  <section class="bg-white border-b border-stone-200 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="font-serif text-2xl text-stone-900">Gestión de Inventario</h1>
+    </div>
+  </section>
+
+  <!-- Navigation -->
+  <section class="bg-white/80 backdrop-blur-lg border-b border-stone-200/50 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex gap-1 overflow-x-auto py-2">
+        <a routerLink="/admin" routerLinkActive="bg-black text-white" [routerLinkActiveOptions]="{exact: true}"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Dashboard
+        </a>
+        <a routerLink="/admin/inventory" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Inventario
+        </a>
+        <a routerLink="/admin/reservations" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Reservas
+        </a>
+        <a routerLink="/admin/tracking" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Tracking GPS
+        </a>
+        <a routerLink="/admin/maintenance" routerLinkActive="bg-black text-white"
+           class="px-4 py-2 text-sm font-medium text-stone-700 rounded-lg hover:bg-stone-100 transition-all whitespace-nowrap">
+          Mantenimiento
+        </a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Content -->
+  <section class="section-padding">
+    <div class="container-custom">
+      
+      <!-- Add Button -->
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="font-playfair">Vehículos ({{ cars().length }})</h2>
+        <button (click)="openAddModal()" class="btn-primary">
+          Agregar Vehículo
+        </button>
+      </div>
+
+      @if (loading()) {
+        <app-loading-spinner [size]="300" message="Cargando inventario..."></app-loading-spinner>
+      }
+
+      @if (error()) {
+        <div class="error-message">{{ error() }}</div>
+      }
+
+      <!-- Cars Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (car of cars(); track car.id) {
+          <div class="card">
+            @if (car.image) {
+              <img [src]="car.image" [alt]="car.brand" class="w-full aspect-video object-cover mb-4" />
+            }
+            
+            <div class="mb-4">
+              <h3 class="font-playfair mb-1">{{ car.brand }} {{ car.model }}</h3>
+              <p class="text-sm text-gray-600">{{ car.year }} - Segmento {{ car.segment }}</p>
+            </div>
+
+            <div class="mb-4">
+              <select
+                [value]="car.status"
+                (change)="updateStatus(car, $any($event.target).value)"
+                class="text-sm"
+              >
+                <option value="disponible">Disponible</option>
+                <option value="rentado">Rentado</option>
+                <option value="mantenimiento">Mantenimiento</option>
+              </select>
+            </div>
+
+            <div class="flex items-center justify-between mb-4 text-sm text-gray-600">
+              <span>{{ car.transmission }}</span>
+              <span>{{ car.seats }} asientos</span>
+              <span class="font-semibold text-black">${{ car.pricePerDay }} MXN/día</span>
+            </div>
+
+            <div class="flex gap-2">
+              <button (click)="openEditModal(car)" class="btn-secondary flex-1 text-xs py-2">
+                Editar
+              </button>
+              <button (click)="deleteCar(car)" class="btn-ghost flex-1 text-xs py-2">
+                Eliminar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Add/Edit Modal -->
+@if (showAddModal() || showEditModal()) {
+  <div class="overlay" (click)="closeModals()">
+    <div class="modal p-8 max-w-2xl" (click)="$event.stopPropagation()">
+      <h2 class="font-playfair mb-6">
+        {{ showAddModal() ? 'Agregar Vehículo' : 'Editar Vehículo' }}
+      </h2>
+
+      <div class="space-y-4 max-h-96 overflow-y-auto mb-6">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label>Marca</label>
+            <input type="text" [(ngModel)]="formData.brand" placeholder="Toyota" />
+          </div>
+          <div>
+            <label>Modelo</label>
+            <input type="text" [(ngModel)]="formData.model" placeholder="Corolla" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label>Año</label>
+            <input type="number" [(ngModel)]="formData.year" />
+          </div>
+          <div>
+            <label>Segmento</label>
+            <select [(ngModel)]="formData.segment">
+              <option value="A">A - Premium</option>
+              <option value="B">B - Standard</option>
+              <option value="C">C - Basic</option>
+            </select>
+          </div>
+          <div>
+            <label>Precio/día</label>
+            <input type="number" [(ngModel)]="formData.pricePerDay" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label>Transmisión</label>
+            <select [(ngModel)]="formData.transmission">
+              <option value="Automática">Automática</option>
+              <option value="Manual">Manual</option>
+            </select>
+          </div>
+          <div>
+            <label>Combustible</label>
+            <select [(ngModel)]="formData.fuelType">
+              <option value="Gasolina">Gasolina</option>
+              <option value="Diésel">Diésel</option>
+              <option value="Eléctrico">Eléctrico</option>
+              <option value="Híbrido">Híbrido</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label>Asientos</label>
+            <input type="number" [(ngModel)]="formData.seats" />
+          </div>
+          <div>
+            <label>Puertas</label>
+            <input type="number" [(ngModel)]="formData.doors" />
+          </div>
+          <div>
+            <label>Maletas</label>
+            <input type="number" [(ngModel)]="formData.luggage" />
+          </div>
+        </div>
+
+        <div>
+          <label>Descripción</label>
+          <textarea [(ngModel)]="formData.description" rows="3"></textarea>
+        </div>
+
+        <div>
+          <label>URLs de Imágenes (una por línea)</label>
+          <textarea 
+            [(ngModel)]="formData.image" 
+            rows="4" 
+            placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg&#10;https://ejemplo.com/imagen3.jpg"
+            class="font-mono text-sm"
+          ></textarea>
+          <p class="text-xs text-gray-500 mt-1">Ingresa una URL por línea. La primera imagen será la principal.</p>
+        </div>
+      </div>
+
+      <div class="flex gap-4">
+        <button (click)="closeModals()" class="btn-secondary flex-1">
+          Cancelar
+        </button>
+        <button (click)="saveCar()" class="btn-primary flex-1">
+          {{ showAddModal() ? 'Agregar' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<div class="w-screen relative left-1/2 right-1/2 -mx-[50vw]">
+  <app-footer></app-footer>
+</div>

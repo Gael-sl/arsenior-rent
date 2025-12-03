@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/frontend/browser",
+  "devCommand": "npm start",
+  "installCommand": "npm install",
+  "framework": "angular",
+  "regions": ["iad1"]
+}

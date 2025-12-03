@@ -1,0 +1,255 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-gray-50">
+  
+  <!-- Header -->
+  <section class="bg-white border-b border-gray-200 py-8">
+    <div class="container-custom">
+      <div class="flex items-center justify-center relative">
+        <button 
+          (click)="goBack()" 
+          class="absolute left-0 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          title="Volver">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+        </button>
+        <h1 class="font-playfair text-center">Mis Reservas</h1>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content -->
+  <section class="section-padding">
+    <div class="container-custom">
+      
+      <!-- Loading State -->
+      <div *ngIf="loading()">
+        <app-loading-spinner [size]="300" message="Cargando reservas..."></app-loading-spinner>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error()" class="error-message text-center">
+        {{ error() }}
+      </div>
+
+      <!-- Empty State - Enhanced -->
+      <div *ngIf="!loading() && !error() && reservations().length === 0" class="text-center py-20">
+        <div class="max-w-md mx-auto">
+          <!-- Elegant Car Icon -->
+          <div class="mb-8">
+            <svg class="w-32 h-32 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
+                d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"/>
+            </svg>
+          </div>
+          
+          <h2 class="font-playfair text-2xl mb-4 text-gray-800">Aún no tienes reservas</h2>
+          
+          <p class="text-gray-500 mb-8 leading-relaxed">
+            Descubre nuestra flota de vehículos de lujo y vive una experiencia de conducción única. 
+            Tu próxima aventura te espera.
+          </p>
+          
+          <div class="space-y-4">
+            <a routerLink="/" class="btn-primary inline-block px-8 py-3">
+              Explorar Vehículos
+            </a>
+            <p class="text-sm text-gray-400">
+              Selecciona tus fechas y encuentra el auto perfecto
+            </p>
+          </div>
+          
+          <!-- Features -->
+          <div class="mt-12 grid grid-cols-3 gap-6 text-center">
+            <div>
+              <div class="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <p class="text-xs text-gray-500">Reserva Fácil</p>
+            </div>
+            <div>
+              <div class="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <p class="text-xs text-gray-500">Entrega Rápida</p>
+            </div>
+            <div>
+              <div class="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <p class="text-xs text-gray-500">100% Seguro</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reservations List -->
+      <div *ngIf="!loading() && reservations().length > 0" class="space-y-6">
+        <div *ngFor="let reservation of reservations()" class="card">
+          <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <!-- Car Image -->
+            <div class="lg:col-span-1">
+              <img *ngIf="reservation.car?.image" [src]="reservation.car?.image" [alt]="reservation.car?.brand" 
+                   class="w-full aspect-video object-cover" />
+              <div *ngIf="!reservation.car?.image" class="w-full aspect-video bg-gray-200 flex items-center justify-center">
+                <span class="text-gray-400">Sin imagen</span>
+              </div>
+            </div>
+
+            <!-- Reservation Info -->
+            <div class="lg:col-span-2 space-y-4">
+              <div>
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="font-playfair">
+                    {{ reservation.car?.brand }} {{ reservation.car?.model }}
+                  </h3>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(reservation.status)">
+                    {{ getStatusLabel(reservation.status) }}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-600">Reserva #{{ reservation.id }}</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p class="text-gray-600">Inicio</p>
+                  <p class="font-semibold">{{ reservation.startDate }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-600">Devolución</p>
+                  <p class="font-semibold">{{ reservation.endDate }}</p>
+                  <p *ngIf="reservation.isEarlyReturn" class="text-xs text-green-600">Devolución anticipada</p>
+                </div>
+                <div>
+                  <p class="text-gray-600">Plan</p>
+                  <p class="font-semibold">{{ reservation.plan }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-600">Total días</p>
+                  <p class="font-semibold">{{ reservation.totalDays }}</p>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-200 pt-4">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <p class="text-sm text-gray-600">Total</p>
+                    <p class="text-2xl font-playfair">${{ reservation.totalAmount.toFixed(2) }} MXN</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-xs text-gray-600">
+                      Anticipo: {{ reservation.depositPaid ? '✓ Pagado' : 'Pendiente' }}
+                    </p>
+                    <p class="text-xs text-gray-600">
+                      Total: {{ (reservation.finalPaid || reservation.status === 'activa') ? '✓ Pagado' : 'Pendiente' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Extras -->
+              <div *ngIf="reservation.extras && reservation.extras.length > 0" class="text-xs">
+                <p class="text-gray-600 mb-1">Extras:</p>
+                <p>{{ extrasList(reservation.extras) }}</p>
+              </div>
+
+              <!-- Days Remaining (for active reservations) -->
+              <div *ngIf="reservation.status === 'activa'" class="bg-stone-800 p-4 rounded-lg shadow-lg flex items-center gap-3">
+                <span class="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></span>
+                <p class="font-bold text-base text-stone-100">
+                  Renta Activa • {{ calculateDaysRemaining(reservation.endDate) }} día(s) restante(s)
+                </p>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="lg:col-span-1 flex flex-col gap-3">
+              <div class="border-t-2 border-gray-300 pt-4 mb-1"></div>
+              
+              <a *ngIf="canPickup(reservation)" [routerLink]="['/checklist-pickup', reservation.id]" 
+                 class="btn-primary text-center text-xs py-2">
+                Recoger Vehículo
+              </a>
+
+              <a *ngIf="canReturn(reservation)" [routerLink]="['/checklist-return', reservation.id]" 
+                 class="btn-primary text-center text-xs py-2">
+                Devolver Vehículo
+              </a>
+
+              <a *ngIf="canRate(reservation)" [routerLink]="['/rating', reservation.id]" 
+                 class="btn-secondary text-center text-xs py-2">
+                Calificar Servicio
+              </a>
+
+              <!-- Botón Devolución Anticipada -->
+              <button *ngIf="reservation.status === 'activa' && !reservation.isEarlyReturn" 
+                      (click)="openEarlyReturnModal(reservation)" 
+                      class="border-2 border-stone-600 text-stone-700 hover:bg-stone-600 hover:text-white font-medium rounded-lg text-xs py-3 transition-all">
+                Devolver Antes
+              </button>
+
+              <a [routerLink]="['/car', reservation.carId]" 
+                 class="border-2 border-stone-400 text-stone-600 hover:bg-stone-100 font-medium rounded-lg text-xs py-3 text-center transition-all">
+                Ver Vehículo
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL: Early Return -->
+<div *ngIf="showEarlyReturnModal()" class="overlay" (click)="closeEarlyReturnModal()">
+  <div class="modal p-8" (click)="$event.stopPropagation()">
+    <h2 class="font-playfair mb-6">Devolución Anticipada</h2>
+    
+    <p class="text-gray-600 mb-6">
+      Si devuelves el vehículo antes de la fecha programada, se ajustará el precio y recibirás un reembolso proporcional.
+    </p>
+
+    <div class="space-y-4 mb-6">
+      <div>
+        <label for="earlyDate">Nueva Fecha de Devolución</label>
+        <input
+          type="date"
+          id="earlyDate"
+          [(ngModel)]="earlyReturnDate"
+          [max]="selectedReservation?.endDate"
+          [min]="minDate"
+        />
+      </div>
+
+      <div>
+        <label for="reason">Motivo (opcional)</label>
+        <textarea
+          id="reason"
+          [(ngModel)]="earlyReturnReason"
+          rows="3"
+          placeholder="¿Por qué necesitas devolver antes?"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button (click)="closeEarlyReturnModal()" class="btn-secondary flex-1">
+        Cancelar
+      </button>
+      <button (click)="confirmEarlyReturn()" class="btn-primary flex-1">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

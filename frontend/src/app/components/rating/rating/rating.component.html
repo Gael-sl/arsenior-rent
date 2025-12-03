@@ -1,0 +1,175 @@
+<app-navbar></app-navbar>
+
+<main class="min-h-screen bg-gradient-to-br from-stone-50 to-stone-100 section-padding">
+  <div class="container-custom">
+    <div class="max-w-3xl mx-auto">
+      
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="font-playfair text-4xl mb-3">Califica tu Experiencia</h1>
+        <div class="divider mx-auto" style="max-width: 100px;"></div>
+      </div>
+
+      <!-- Reservation Info -->
+      <div *ngIf="reservation()" class="bg-white/80 backdrop-blur-lg rounded-lg shadow-lg p-6 mb-8 text-center border border-stone-200">
+        <div class="flex items-center justify-center gap-3 mb-3">
+          <svg class="w-8 h-8 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <h3 class="font-playfair text-2xl">{{ reservation()!.car?.brand }} {{ reservation()!.car?.model }}</h3>
+        </div>
+        <p class="text-stone-600 text-sm">Reserva #{{ reservation()!.id }}</p>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="success()" class="bg-green-50 border border-green-200 rounded-lg p-6 text-center mb-8">
+        <svg class="w-16 h-16 mx-auto text-green-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-green-800 font-semibold text-lg">¡Gracias por tu calificación!</p>
+        <p class="text-green-600 text-sm mt-2">Redirigiendo...</p>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error()" class="error-message mb-8">{{ error() }}</div>
+
+      <div *ngIf="!success()">
+        <!-- Rating Categories -->
+        <div class="bg-white/90 backdrop-blur-lg rounded-lg shadow-xl p-8 mb-8 border border-stone-200">
+          <div class="space-y-10">
+            
+            <!-- Vehicle Condition -->
+            <div class="rating-category">
+              <label class="block mb-4 text-center font-playfair text-lg text-stone-800">
+                Condición del Vehículo
+              </label>
+              <div class="flex items-center justify-center gap-3">
+                <button
+                  *ngFor="let star of getStars(5)"
+                  (click)="setRating('vehicleCondition', star)"
+                  class="text-5xl transition-all duration-200 hover:scale-110 focus:outline-none"
+                  [class.text-black]="star <= vehicleCondition"
+                  [class.text-stone-300]="star > vehicleCondition"
+                  [class.drop-shadow-lg]="star <= vehicleCondition"
+                >
+                  {{ star <= vehicleCondition ? '★' : '☆' }}
+                </button>
+              </div>
+              <p class="text-center text-sm text-stone-600 mt-3 font-medium">{{ vehicleCondition }} de 5 estrellas</p>
+            </div>
+
+            <!-- Cleanliness -->
+            <div class="rating-category">
+              <label class="block mb-4 text-center font-playfair text-lg text-stone-800">
+                Limpieza
+              </label>
+              <div class="flex items-center justify-center gap-3">
+                <button
+                  *ngFor="let star of getStars(5)"
+                  (click)="setRating('cleanliness', star)"
+                  class="text-5xl transition-all duration-200 hover:scale-110 focus:outline-none"
+                  [class.text-black]="star <= cleanliness"
+                  [class.text-stone-300]="star > cleanliness"
+                  [class.drop-shadow-lg]="star <= cleanliness"
+                >
+                  {{ star <= cleanliness ? '★' : '☆' }}
+                </button>
+              </div>
+              <p class="text-center text-sm text-stone-600 mt-3 font-medium">{{ cleanliness }} de 5 estrellas</p>
+            </div>
+
+            <!-- Performance -->
+            <div class="rating-category">
+              <label class="block mb-4 text-center font-playfair text-lg text-stone-800">
+                Rendimiento del Vehículo
+              </label>
+              <div class="flex items-center justify-center gap-3">
+                <button
+                  *ngFor="let star of getStars(5)"
+                  (click)="setRating('performance', star)"
+                  class="text-5xl transition-all duration-200 hover:scale-110 focus:outline-none"
+                  [class.text-black]="star <= performance"
+                  [class.text-stone-300]="star > performance"
+                  [class.drop-shadow-lg]="star <= performance"
+                >
+                  {{ star <= performance ? '★' : '☆' }}
+                </button>
+              </div>
+              <p class="text-center text-sm text-stone-600 mt-3 font-medium">{{ performance }} de 5 estrellas</p>
+            </div>
+
+            <!-- Customer Service -->
+            <div class="rating-category">
+              <label class="block mb-4 text-center font-playfair text-lg text-stone-800">
+                Servicio al Cliente
+              </label>
+              <div class="flex items-center justify-center gap-3">
+                <button
+                  *ngFor="let star of getStars(5)"
+                  (click)="setRating('customerService', star)"
+                  class="text-5xl transition-all duration-200 hover:scale-110 focus:outline-none"
+                  [class.text-black]="star <= customerService"
+                  [class.text-stone-300]="star > customerService"
+                  [class.drop-shadow-lg]="star <= customerService"
+                >
+                  {{ star <= customerService ? '★' : '☆' }}
+                </button>
+              </div>
+              <p class="text-center text-sm text-stone-600 mt-3 font-medium">{{ customerService }} de 5 estrellas</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overall Rating Card -->
+        <div class="bg-gradient-to-br from-stone-900 to-stone-800 text-white rounded-lg shadow-2xl p-10 mb-8 text-center">
+          <p class="text-xs uppercase tracking-widest mb-3 opacity-80">Calificación General</p>
+          <p class="text-7xl font-playfair font-bold mb-4">{{ getOverallRating().toFixed(1) }}</p>
+          <div class="flex justify-center gap-2">
+            <span 
+              *ngFor="let star of getStars(5)"
+              class="text-3xl"
+              [class.opacity-100]="star <= Math.round(getOverallRating())"
+              [class.opacity-30]="star > Math.round(getOverallRating())"
+            >
+              ★
+            </span>
+          </div>
+          <p class="text-sm mt-4 opacity-80">Promedio de tus calificaciones</p>
+        </div>
+
+        <!-- Comments -->
+        <div class="bg-white/90 backdrop-blur-lg rounded-lg shadow-xl p-8 mb-8 border border-stone-200">
+          <label class="block mb-4 font-playfair text-lg text-stone-800">
+            Comentarios <span class="text-sm text-stone-500 font-sans">(opcional)</span>
+          </label>
+          <textarea
+            [(ngModel)]="comments"
+            rows="6"
+            class="w-full border border-stone-300 rounded-lg p-4 focus:ring-2 focus:ring-stone-800 focus:border-transparent transition-all resize-none"
+            placeholder="Cuéntanos sobre tu experiencia con el vehículo y nuestro servicio..."
+          ></textarea>
+          <p class="text-xs text-stone-500 mt-2">Tu opinión nos ayuda a mejorar</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-4">
+          <a routerLink="/my-reservations" class="btn-secondary flex-1 text-center py-4 text-lg">
+            Cancelar
+          </a>
+          <button
+            (click)="submitRating()"
+            class="btn-primary flex-1 py-4 text-lg font-semibold"
+            [disabled]="loading()"
+          >
+            <span *ngIf="loading()">Enviando...</span>
+            <span *ngIf="!loading()">Enviar Calificación</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>

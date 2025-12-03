@@ -1,0 +1,26 @@
+{
+  "cars": [
+    {
+      "id": 1,
+      "brand": "Toyota",
+      "model": "Corolla",
+      "seats": 5,
+      "segment": "B",
+      "transmission": "manual",
+      "price": 40,
+      "rating": 4.3,
+      "images": []
+    },
+    {
+      "id": 2,
+      "brand": "BMW",
+      "model": "320i",
+      "seats": 5,
+      "segment": "A",
+      "transmission": "automatic",
+      "price": 80,
+      "rating": 4.7,
+      "images": []
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+@if (isOpen) {
+  <div 
+    class="fixed inset-0 z-[100] flex items-center justify-center p-4"
+    (click)="onBackdropClick($event)"
+  >
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+    
+    <!-- Modal -->
+    <div class="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between p-6 border-b border-stone-200 bg-white">
+        <div>
+          <h2 class="font-serif text-2xl text-stone-900">Terminos y Condiciones</h2>
+          <p class="text-sm text-stone-600 mt-1">Contrato de Arrendamiento de Vehiculo</p>
+        </div>
+        <button
+          (click)="close()"
+          class="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-stone-600">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Content (scrollable) -->
+      <div 
+        class="flex-1 overflow-y-auto p-6 text-sm text-stone-700 leading-relaxed"
+        (scroll)="onScroll($event)"
+      >
+        <div class="space-y-6">
+          
+          <!-- Section 1 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">1. Partes del Contrato</h3>
+            <p class="mb-2">
+              El presente contrato de arrendamiento de vehiculo se celebra entre <strong>Arsenior Rent</strong> 
+              (en adelante "La Arrendadora") con domicilio en Los Mochis, Sinaloa, Mexico, y el cliente 
+              que acepta estos terminos (en adelante "El Arrendatario").
+            </p>
+            <p>
+              Al aceptar estos terminos y condiciones, El Arrendatario declara ser mayor de edad (21 años minimo), 
+              contar con licencia de conducir vigente y tener la capacidad legal para celebrar este contrato.
+            </p>
+          </section>
+
+          <!-- Section 2 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">2. Objeto del Contrato</h3>
+            <p class="mb-2">
+              La Arrendadora se obliga a entregar en arrendamiento al Arrendatario el vehiculo especificado 
+              en la reserva, en condiciones optimas de funcionamiento y seguridad, por el periodo acordado.
+            </p>
+            <p>
+              El Arrendatario se obliga a utilizar el vehiculo de manera responsable, respetando las leyes 
+              de transito vigentes y devolver el vehiculo en las mismas condiciones en que fue recibido.
+            </p>
+          </section>
+
+          <!-- Section 3 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">3. Duracion y Entrega</h3>
+            <ul class="list-disc list-inside space-y-2 ml-2">
+              <li>El periodo de arrendamiento inicia a partir de la fecha y hora de entrega especificadas en la reserva.</li>
+              <li>La devolucion del vehiculo debera realizarse en la fecha, hora y lugar acordados.</li>
+              <li>El retraso en la devolucion generara cargos adicionales equivalentes al costo diario de renta.</li>
+              <li>Un retraso mayor a 24 horas sin previo aviso sera considerado uso indebido del vehiculo.</li>
+            </ul>
+          </section>
+
+          <!-- Section 4 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">4. Tarifas y Forma de Pago</h3>
+            <ul class="list-disc list-inside space-y-2 ml-2">
+              <li>El precio de la renta incluye el seguro basico de responsabilidad civil.</li>
+              <li>Se requiere un anticipo del 30% del total para confirmar la reserva.</li>
+              <li>El 70% restante debera pagarse al momento de recoger el vehiculo.</li>
+              <li>Los cargos por combustible, multas de transito y daños no cubiertos seran responsabilidad del Arrendatario.</li>
+              <li>El kilometraje ilimitado aplica solo dentro del estado de Sinaloa.</li>
+            </ul>
+          </section>
+
+          <!-- Section 5 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">5. Seguro y Coberturas</h3>
+            <div class="bg-stone-50 p-4 rounded-lg mb-3">
+              <p class="font-medium text-stone-900 mb-2">Plan Base:</p>
+              <ul class="list-disc list-inside space-y-1 ml-2">
+                <li>Seguro de responsabilidad civil ante terceros</li>
+                <li>Asistencia en carretera 24/7</li>
+                <li>Deducible en caso de siniestro: $10,000 MXN</li>
+              </ul>
+            </div>
+            <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+              <p class="font-medium text-amber-900 mb-2">Plan Premier:</p>
+              <ul class="list-disc list-inside space-y-1 ml-2">
+                <li>Cobertura amplia contra robo y daños materiales</li>
+                <li>Sin deducible en la mayoria de los casos</li>
+                <li>Proteccion de llantas y parabrisas</li>
+                <li>Conductor adicional sin costo</li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- Section 6 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">6. Uso del Vehiculo</h3>
+            <p class="mb-3">El Arrendatario se compromete a:</p>
+            <ul class="list-disc list-inside space-y-2 ml-2">
+              <li>No conducir bajo los efectos de alcohol, drogas o medicamentos que afecten su capacidad.</li>
+              <li>No permitir que personas no autorizadas conduzcan el vehiculo.</li>
+              <li>No usar el vehiculo para carreras, remolque o transporte de carga comercial.</li>
+              <li>No transportar mas pasajeros de los permitidos.</li>
+              <li>No cruzar fronteras estatales o internacionales sin autorizacion escrita.</li>
+              <li>Respetar todas las leyes y reglamentos de transito vigentes.</li>
+            </ul>
+          </section>
+
+          <!-- Section 7 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">7. Responsabilidades del Arrendatario</h3>
+            <ul class="list-disc list-inside space-y-2 ml-2">
+              <li>Verificar niveles de aceite, agua y presion de llantas periodicamente.</li>
+              <li>Reportar inmediatamente cualquier falla mecanica o accidente.</li>
+              <li>Devolver el vehiculo con el mismo nivel de combustible con el que fue entregado.</li>
+              <li>Pagar todas las multas de transito incurridas durante el periodo de renta.</li>
+              <li>Cubrir los daños no incluidos en la cobertura del seguro contratado.</li>
+            </ul>
+          </section>
+
+          <!-- Section 8 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">8. En Caso de Accidente</h3>
+            <ol class="list-decimal list-inside space-y-2 ml-2">
+              <li>No admitir responsabilidad ni hacer declaraciones.</li>
+              <li>Obtener datos de las partes involucradas y testigos.</li>
+              <li>Tomar fotografias del lugar y los daños.</li>
+              <li>Reportar el accidente a las autoridades de transito.</li>
+              <li>Comunicarse inmediatamente a la linea de emergencia de Arsenior Rent: (668) 123-4567.</li>
+              <li>No abandonar el vehiculo bajo ninguna circunstancia.</li>
+            </ol>
+          </section>
+
+          <!-- Section 9 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">9. Cancelaciones y Reembolsos</h3>
+            <ul class="list-disc list-inside space-y-2 ml-2">
+              <li>Cancelacion con mas de 48 horas de anticipacion: reembolso del 100% del anticipo.</li>
+              <li>Cancelacion entre 24 y 48 horas: reembolso del 50% del anticipo.</li>
+              <li>Cancelacion con menos de 24 horas: sin reembolso.</li>
+              <li>No presentarse a recoger el vehiculo: sin reembolso y posibles cargos adicionales.</li>
+            </ul>
+          </section>
+
+          <!-- Section 10 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">10. Proteccion de Datos Personales</h3>
+            <p>
+              La Arrendadora se compromete a proteger los datos personales del Arrendatario conforme a la 
+              Ley Federal de Proteccion de Datos Personales en Posesion de los Particulares. Los datos 
+              proporcionados seran utilizados unicamente para la gestion de la reserva y servicios relacionados.
+            </p>
+          </section>
+
+          <!-- Section 11 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">11. Jurisdiccion</h3>
+            <p>
+              Para la interpretacion y cumplimiento de este contrato, las partes se someten a la jurisdiccion 
+              de los tribunales competentes de la ciudad de Los Mochis, Sinaloa, renunciando expresamente a 
+              cualquier otro fuero que pudiera corresponderles por razon de sus domicilios presentes o futuros.
+            </p>
+          </section>
+
+          <!-- Section 12 -->
+          <section>
+            <h3 class="font-serif text-lg text-stone-900 mb-3">12. Aceptacion</h3>
+            <div class="bg-stone-100 p-4 rounded-lg">
+              <p>
+                Al hacer clic en "Acepto los Terminos y Condiciones", el Arrendatario declara haber leido, 
+                comprendido y aceptado integramente todos los terminos y condiciones establecidos en este contrato. 
+                Esta aceptacion tiene la misma validez que una firma autografa.
+              </p>
+            </div>
+          </section>
+
+          <!-- Footer info -->
+          <div class="pt-4 border-t border-stone-200 text-xs text-stone-500">
+            <p>Arsenior Rent - Renta de Vehiculos Premium</p>
+            <p>Los Mochis, Sinaloa, Mexico</p>
+            <p>Ultima actualizacion: Septiembre 2025</p>
+          </div>
+
+        </div>
+      </div>
+      
+      <!-- Footer with actions -->
+      <div class="p-6 border-t border-stone-200 bg-stone-50">
+        <div class="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+          <p class="text-xs text-stone-500">
+            @if (!hasScrolledToEnd()) {
+              <span class="flex items-center space-x-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-bounce">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <polyline points="19 12 12 19 5 12"/>
+                </svg>
+                <span>Desplazate hacia abajo para leer todos los terminos</span>
+              </span>
+            } @else {
+              <span class="text-emerald-600 flex items-center space-x-1">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>Has leido todos los terminos</span>
+              </span>
+            }
+          </p>
+          <div class="flex gap-3">
+            <button
+              (click)="close()"
+              class="px-6 py-2.5 bg-white hover:bg-stone-100 text-stone-700 rounded-lg font-medium border border-stone-200 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              (click)="acceptTerms()"
+              [disabled]="!hasScrolledToEnd()"
+              class="px-6 py-2.5 bg-black hover:bg-stone-800 text-white rounded-lg font-medium transition-colors disabled:bg-stone-300 disabled:cursor-not-allowed"
+            >
+              Acepto los Terminos
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

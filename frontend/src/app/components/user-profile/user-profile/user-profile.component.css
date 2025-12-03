@@ -1,0 +1,6 @@
+/* User Profile Styles */
+
+.divider {
+  height: 2px;
+  background: linear-gradient(to right, transparent, #1c1917, transparent);
+}
