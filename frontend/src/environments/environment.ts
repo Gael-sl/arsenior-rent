@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:3000/api'
+  production: true,
+  apiUrl: 'https://arsenior-rent-production.up.railway.app/api'
 };
