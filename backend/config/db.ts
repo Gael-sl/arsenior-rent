@@ -48,12 +48,7 @@ export const initDatabase = (): void => {
     db.exec(`ALTER TABLE users ADD COLUMN resetTokenExpires TEXT`);
   } catch (e) { /* columna ya existe */ }
 
-  // Migracion: agregar galeria de fotos a cars
-  try {
-    db.exec(`ALTER TABLE cars ADD COLUMN gallery TEXT`);
-  } catch (e) { /* columna ya existe */ }
-
-  // TABLA: Cars
+  // TABLA: Cars (incluye gallery desde el inicio)
   db.exec(`
     CREATE TABLE IF NOT EXISTS cars (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,6 +62,7 @@ export const initDatabase = (): void => {
       doors INTEGER NOT NULL,
       luggage INTEGER NOT NULL,
       image TEXT,
+      gallery TEXT,
       pricePerDay REAL NOT NULL,
       status TEXT DEFAULT 'disponible' CHECK(status IN ('disponible', 'rentado', 'mantenimiento')),
       rating REAL DEFAULT 0,
@@ -78,6 +74,11 @@ export const initDatabase = (): void => {
       updatedAt TEXT DEFAULT (datetime('now'))
     )
   `);
+
+  // Migracion: agregar galeria de fotos a cars (para DBs existentes)
+  try {
+    db.exec(`ALTER TABLE cars ADD COLUMN gallery TEXT`);
+  } catch (e) { /* columna ya existe */ }
 
   // TABLA: Reservations
   db.exec(`
