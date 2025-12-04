@@ -56,10 +56,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Inicializar base de datos y mailer
 initDatabase();
 
-// Solo ejecutar seed en desarrollo (NO en producción)
-if (process.env.NODE_ENV !== 'production') {
-  seedDatabase();
-}
+// Ejecutar seed (incluye usuarios de prueba)
+seedDatabase();
 
 initMailer(); // Inicializar servicio de email
 
