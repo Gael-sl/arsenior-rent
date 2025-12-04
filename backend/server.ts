@@ -18,10 +18,15 @@ import paymentsRoutes from './routes/payments';
 import aiRoutes from './routes/ai';
 import favoritesRoutes from './routes/favorites';
 
+// Cargar .env solo si existe (en producción Railway inyecta variables directamente)
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 3000; // Railway inyecta PORT automáticamente
+const PORT = process.env.PORT || 3000;
+
+// Log para debug en Railway
+console.log(`[DEBUG] PORT=${PORT}, NODE_ENV=${process.env.NODE_ENV || 'not set'}`);
+console.log(`[DEBUG] Starting server...`);
 
 // CORS - Configuración correcta para producción
 const allowedOrigins = [
