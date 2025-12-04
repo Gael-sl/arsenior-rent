@@ -136,7 +136,7 @@ app.listen(Number(PORT), '0.0.0.0', () => {
 |                                               |
 |   Usuarios de prueba:                         |
 |   Admin: admin@arseniorrent.com / Admin123    |
-|   User:  user@test.com / user123              |
+|   User:  user@test.com / User1234             |
 |                                               |
 +-----------------------------------------------+
   `);

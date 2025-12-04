@@ -281,7 +281,7 @@ export const seedDatabase = (): void => {
   
   if (!userExists) {
     const bcrypt = require('bcryptjs');
-    const hashedPassword = bcrypt.hashSync('user123', 10);
+    const hashedPassword = bcrypt.hashSync('User1234', 10);
     
     db.prepare(`
       INSERT INTO users (email, password, firstName, lastName, phone, role, rating, totalRentals)
