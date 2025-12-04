@@ -95,13 +95,19 @@ const sendWithResend = async (to: string, subject: string, html: string): Promis
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => null);
       console.error('[RESEND] Error:', error);
       return false;
     }
 
-    const data = await response.json();
-    console.log('[RESEND] Email enviado:', data.id);
+    // Parse response JSON and guard its shape before accessing properties
+    const data = await response.json().catch(() => null);
+    if (data && typeof data === 'object' && 'id' in (data as Record<string, unknown>)) {
+      console.log('[RESEND] Email enviado:', (data as any).id);
+    } else {
+      // Fallback log if response has no id
+      console.log('[RESEND] Email enviado');
+    }
     return true;
   } catch (error: any) {
     console.error('[RESEND] Error:', error.message);
