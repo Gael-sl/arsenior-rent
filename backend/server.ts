@@ -109,8 +109,8 @@ app.use((err: any, req: Request, res: Response, next: any) => {
   });
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
+// Iniciar servidor - Railway requiere escuchar en 0.0.0.0
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`
 +-----------------------------------------------+
 |                                               |
