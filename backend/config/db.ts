@@ -284,9 +284,12 @@ export const seedDatabase = (): void => {
     const hashedPassword = bcrypt.hashSync('User1234', 10);
     
     db.prepare(`
-      INSERT INTO users (email, password, firstName, lastName, phone, role, rating, totalRentals)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (email, password, firstName, lastName, phone, role, rating, totalRentals, emailVerified)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
     `).run('user@test.com', hashedPassword, 'Juan', 'Pérez', '+52 987 654 3210', 'user', 4.5, 3);
+  } else {
+    // Asegurar que el usuario de prueba esté verificado
+    db.prepare(`UPDATE users SET emailVerified = 1 WHERE email = ?`).run('user@test.com');
   }
 
   // Carros de ejemplo
