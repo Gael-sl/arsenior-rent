@@ -23,37 +23,23 @@ dotenv.config();
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS - Configuración para producción
-const corsOptions = {
-  origin: function (origin: any, callback: any) {
-    // Permitir requests sin origin (como mobile apps o curl)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'http://localhost:4200',
-      'http://localhost:4000',
-      'http://127.0.0.1:4200',
-      process.env.FRONTEND_URL || ''
-    ].filter(Boolean);
-    
-    // En producción verificar origen, en desarrollo permitir todos
-    if (process.env.NODE_ENV === 'production') {
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(null, true); // Temporalmente permitir todos
-      }
-    } else {
-      callback(null, true);
-    }
-  },
-  credentials: true,
+// CORS - Configuración SIMPLIFICADA
+const allowedOrigins = [
+  'http://localhost:4200',
+  'http://localhost:4000',
+  'http://127.0.0.1:4200',
+  'https://arsenior-rent-lu5a.vercel.app'
+];
+
+app.use(cors({
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  exposedHeaders: ['Authorization']
-};
+  credentials: true
+}));
 
-app.use(cors(corsOptions));
+// Manejar preflight requests
+app.options('*', cors());
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
