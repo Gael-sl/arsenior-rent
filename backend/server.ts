@@ -1,5 +1,4 @@
-import express, { Application, Request, Response } from 'express';
-import cors from 'cors';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import { initDatabase, seedDatabase } from './config/db';
 import { initMailer } from './config/mail';
@@ -24,14 +23,15 @@ const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
 // CORS - Permitir TODOS los orígenes (solución definitiva)
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
   res.header('Access-Control-Allow-Credentials', 'true');
   
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+    res.sendStatus(200);
+    return;
   }
   next();
 });
