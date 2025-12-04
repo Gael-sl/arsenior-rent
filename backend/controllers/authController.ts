@@ -67,20 +67,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Generar token de verificación
-    const emailToken = generateRandomToken();
-    const emailTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 horas
-
-    // Insertar usuario (emailVerified = 0 por defecto)
+    // Insertar usuario (emailVerified = 1 para evitar problemas con emails en Railway free)
     const result = db.prepare(`
-      INSERT INTO users (email, password, firstName, lastName, phone, role, emailVerified, emailToken, emailTokenExpires)
-      VALUES (?, ?, ?, ?, ?, 'user', 0, ?, ?)
-    `).run(email, hashedPassword, firstName, lastName, phone, emailToken, emailTokenExpires);
+      INSERT INTO users (email, password, firstName, lastName, phone, role, emailVerified)
+      VALUES (?, ?, ?, ?, ?, 'user', 1)
+    `).run(email, hashedPassword, firstName, lastName, phone);
 
     const userId = result.lastInsertRowid as number;
-
-    // Enviar email de verificación
-    await sendVerificationEmail(email, firstName, emailToken);
 
     // Obtener usuario creado
     const newUser = db.prepare(`
@@ -88,14 +81,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       FROM users WHERE id = ?
     `).get(userId) as Omit<User, 'password'>;
 
-    // Generar token (aunque no esté verificado, puede hacer login pero con restricciones)
+    // Generar token
     const token = generateToken(newUser.id, newUser.email, newUser.role);
 
     res.status(201).json({
-      message: 'Usuario registrado exitosamente. Por favor verifica tu email.',
+      message: 'Usuario registrado exitosamente.',
       token,
       user: newUser,
-      emailSent: true
+      emailSent: false
     });
   } catch (error) {
     console.error('Error en registro:', error);
